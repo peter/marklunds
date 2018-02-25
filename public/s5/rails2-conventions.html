@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>Building Web Apps with Rails 2 - Plugins and Conventions I Use</title>
+  <!-- metadata -->
+  <meta name="generator" content="S5" />
+  <meta name="version" content="S5 1.1" />
+  <meta name="presdate" content="20061113" />
+  <meta name="author" content="Peter Marklund" />
+  <meta name="company" content="Peter Marklund" />
+  <!-- configuration parameters -->
+  <meta name="defaultView" content="slideshow" />
+  <meta name="controlVis" content="hidden" />
+  <!-- style sheet links -->
+  <link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+  <link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+  <link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+  <link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+  <!-- embedded styles -->
+  <style type="text/css" media="all">
+  .imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+  #anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+  #anim img {position: absolute; top: 42px; left: 24px;}
+  img#me01 {top: 0; left: 0;}
+  img#me02 {left: 23px;}
+  img#me04 {top: 44px;}
+  img#me05 {top: 43px;left: 36px;}
+  </style>
+  <!-- S5 JS -->
+  <script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+  <div class="layout">
+    <div id="controls"><!-- DO NOT EDIT --></div>
+    <div id="currentSlide"><!-- DO NOT EDIT --></div>
+    <div id="header"></div>
+    <div id="footer">
+      <h1>Building Web Apps with Rails 2 - Plugins and Conventions I Use</h1>
+      <h2>Stockholm Ruby User Group &#8226; Feb 26, 2008</h2>
+    </div>
+
+  </div>
+  <div class="presentation">
+    <div class="slide">
+      <h1>Building Web Apps with Rails 2 - Plugins and Conventions I Use</h1>
+      <h3>Peter Marklund</h3>
+      <h4><a href="http://marklunds.com/">marklunds.com</a></h4>
+      <p style="text-align: right;">
+        <img src="pix/rails1/rails.png" alt="" title="Rails Logo" />
+      </p>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Motivation and Background</h1>
+      <ul>
+        <li>Rails best practice is a moving target</li>
+        <li>Following best practice vs leading it - following conventions vs innovating</li>
+        <li>Rails is opinionated but leaves many decisions open</li>
+        <li>With plugins we can raise the level of reuse. How high should we raise it?</li>
+        <li>Let's discuss alternative solutions to common problems</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Documentation</h1>
+      <ul>
+        <li>Use the RAILS_ROOT/README file as the documentation entry point</li>
+        <li>Describe how to bootstrap and install the app including gem dependencies</li>
+        <li>Include notes about how to deploy the application</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Rails Source Code Version</h1>
+      <ul>
+        <li>Specify RAILS_GEM_VERSION in environment.rb</li>
+        <li>Alternative: invoke rake rails:freeze:gems to put the code under vendor/rails</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Avoid external dependencies</h1>
+      <p>
+        <a href="http://errtheblog.com/posts/50-vendor-everything">Unpack gems</a> that don't require c compilation under vendor/gems
+      </p>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Patches and Hacks</h1>
+      <ul>
+        <li>Put all monkey patches of Ruby and Rails in config/initializers/ruby-patches.rb and config/initializers/rails-patches.rb</li>
+        <li>If you want to patch the plugin foobar, create the file vendor/plugins/foobar_hacked/init.rb, see Chris Wanstraths <a href="http://errtheblog.com/posts/67-evil-twin-plugin">evil twin plugin post</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>JavaScript Performance</h1>
+      <p>
+          Use javascript_include_tag(:all, :cache => true) in your application.html.erb so that JavaScript files are bundled in production for performance
+      </p>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Sessions and Authentication</h1>
+      <ul>
+        <li>With Rails 1.X - use active_record_store with a cronjob for deleting old sessions</li>
+        <li>With Rails 2.X - use the default cookie based sessions</li>
+        <li>
+          Use <a href="http://agilewebdevelopment.com/plugins/restful_authentication">restful_authentication</a>
+          for authentication and registration. Change login
+          to be with email instead of a username.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Configuration</h1>
+      <ul>
+        <li>Try to keep config/environment.rb clean and use files under config/initializers instead.</li>
+        <li>Use the <a href="http://agilewebdevelopment.com/plugins/app_config">app_config plugin</a> for configuring your application</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Make models implement the to_s method</h1>
+      <ul>
+        <li>Makes interpolation into strings easier</li>
+        <li>Makes creating links to objects easier, you can just say &lt;%= link(article) %&gt;</li>
+        <li>I keep helper methods for formating dates and DRYing up show pages in my <a href="http://svn.marklunds.com/plugins/view_utils">view_utils plugin</a></li>
+      </ul>
+    </div>
+  </div>
+
+
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Internationalization</h1>
+      <ul>
+        <li>Use the <a href="http://agilewebdevelopment.com/plugins/gibberish">Gibberish</a>, <a href="http://agilewebdevelopment.com/plugins/gibberish_translate">Gibberish Translate</a>, and <a href="http://agilewebdevelopment.com/plugins/simple_localization">Simple Localization</a> plugins</li>
+        <li>Alternative: use <a href="http://agilewebdevelopment.com/plugins/globalize">the Globalize plugin</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Timezones</h1>
+      <ul>
+        <li>Traditional approach: keep UI in local timezone and everything else in UTC, see
+          <a href="http://www.marklunds.com/articles/one/311">Rails Recipe: A Timezone Aware Datetime Picker</a> and the <a href="http://svn.marklunds.com/plugins/timezone_attributes">timezone_attributes plugin</a>
+          
+        </li>
+        <li>New approach: keep database in UTC and everything else in local timezone, see
+          <a href="http://weblog.techno-weenie.net/2008/2/6/timezone-awareness-in-rails">Timezone awareness in Rails</a> and
+          <a href="http://ryandaigle.com/articles/2008/1/25/what-s-new-in-edge-rails-easier-timezones">What's New in Edge Rails</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Routes, REST, actions and controllers</h1>
+      <ul>
+        <li>Use scaffolding (REST) for your models</li>
+        <li>Remove the default Rails routes</li>
+        <li>Use a home controller for the homepage, static pages, and top level pages</li>
+        <li>Create custom controllers as needed, i.e. for wizards</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Skinny Controllers and Fat Models</h1>
+      <ul>
+        <li>Avoid business logic slipping into views and controllers</li>
+        <li>Keep actions short (i.e. under 10 lines)</li>
+        <li>Use many small methods in your models with names that are intention revealing</li>
+        <li>Use the presenter pattern to simplify actions</li>
+        <li>Break overly fat models up into modules (see <a href="http://henrik.nyh.se/2008/02/rails-model-extensions">Henrik Nyhs post</a>)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>MySQL Configuration / Failing Early</h1>
+      <ul>
+        <li>Use the <a href="http://svn.marklunds.com/plugins/mysql_requirement">mysql_requirement</a>
+            plugin to make sure MySQL is properly configured (encoding, version, c driver, and SQL mode) when the server starts up</li>
+        <li>Another example of failing early: check that the db is migrated to the latest version in production</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Use a Custom Environment for Staging</h1>
+      <p>
+        Create the file config/environments/staging.rb and add the db connection in config/database.yml
+      </p>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>File Uploads</h1>
+      <p>
+        Use the attachment_fu plugin by Rick Olson. See <a href="http://clarkware.com/cgi/blosxom/2007/02/24">Mike Clarks instructions</a>.
+      </p>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>HTML Validation and Link Checking</h1>
+      <p>
+        Use the <a href="http://code.google.com/p/htmltest/">HTML Test plugin</a> to validate all the HTML your app produces and check for broken links, redirects,
+        and forms.
+      </p>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Capistrano Tasks</h1>
+      <ul>
+        <li>Use an <a href="http://www.marklunds.com/articles/one/339">update_dev_db task</a> to update your development db with the latest production data</li>
+        <li>Run a deploy:backup_db task before deployment (before_symlink callback)</li>
+        <li>Run the tests on the production machine before deployment (before_symlink callback)</li>
+        <li>Run a ping_servers task after deployment to see that all servers are up (after_deploy callback)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Use RSpec with Less Mocking</h1>
+      <ul>
+        <li>Drive your development with specifications</li>
+        <li>Write pending specs if you don't have time to implement them right now</li>
+        <li>Use RCov to make sure you have 100% code coverage</li>
+        <li>
+          Skip the view specifications. Use integrate_views and don't stub out the database in your controller tests.  
+        </li>
+        <li>
+          Alternative: use <a href="http://railscasts.com/episodes/71">Ryan Bates approach</a> to mocking in controller tests.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="presentation">
+    <div class="slide">
+      <h1>Resources</h1>
+      <ul>
+        <li><a href="http://weblog.rubyonrails.com/2007/12/7/rails-2-0-it-s-done">Rails 2.0 Announcement</a></li>
+        <li><a href="http://peepcode.com/products/rails2-pdf">PeepCode Rails 2 PDF</a></li>
+        <li><a href="http://www.pragprog.com/titles/fr_arr">Advanced Rails Recipes</a></li>
+        <li><a href="http://peepcode.com/products/draft-rails-code-review-pdf">PeepCode Rails Code Review PDF</a></li>
+        <li><a href="http://www.therailsway.com">The Rails Way</a>:
+          <ul>
+            <li><a href="http://www.mefeedia.com/entry/railsconf-2007-jamis-buck-michael-koziarski/5718731/">RailsConf 2007 Video</a></li>
+            <li><a href="http://mtnwestrubyconf2007.confreaks.com/session10.html">MountainWest 2007 Video</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

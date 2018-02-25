@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Minimizing Library Dependencies</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="October 25:th, 2010" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="Rails Mentor" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="../assets/ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="../assets/ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="../assets/stylesheets/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="../assets/ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<link rel="stylesheet" href="../assets/stylesheets/pressie.css" type="text/css" />
+
+<!-- S5 JS -->
+<script src="../assets/ui/default/slides.js" type="text/javascript"></script>
+
+<!-- Syntax Highlighter -->
+<link rel="stylesheet"  href="../assets/dp.SyntaxHighlighter/Styles/SyntaxHighlighter.css"></link>
+
+<link rel="stylesheet"  href="../assets/stylesheets/custom.css"></link>
+
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h2>Copyright © 2010 Peter Marklund</h2>
+</div>
+
+</div>
+
+
+<div class="presentation">
+  
+<div class="slide"><h1>Minimizing Library Dependencies</h1>
+</div>
+<div class="slide"><h1>Weighing In At</h1>
+<pre>
+Application LOC: 16008
+
+28 vendor/gems, LOC: 36000
+
+37 vendor/plugins, LOC: 28000
+
+vendor/rails, LOC: 96000
+</pre>
+</div>
+<div class="slide"><h1>Library Smells</h1>
+<ul>
+	<li>The library does too much (low cohesion) or too little</li>
+	<li>You need to patch the library to fit your application</li>
+	<li>A lot of gem dependencies</li>
+	<li>The gem dependencies duplicate or conflict with your gems</li>
+	<li>Coupling through global variables, Rails or Ruby patches</li>
+	<li>Lack of test coverage</li>
+	<li>Not mature/stable. Unclear interface.</li>
+	<li>No active maintenance or community</li>
+	<li>Hard to read and understand. A lot of code.</li>
+</ul>
+</div>
+<div class="slide"><h1>Advantages to Rolling Your Own</h1>
+<ul>
+	<li>You understand your own code and know how to maintain it</li>
+	<li>You run regression tests for your code when you make changes</li>
+	<li>The code does exactly what your app needs, no more, no less</li>
+	<li>You control the quality and style of the code</li>
+	<li>Ruby and Rails upgrades are easier</li>
+</ul>
+</div>
+<div class="slide"><h1>1. Application Level Libraries</h1>
+<ul>
+	<li>restful_authentication/device</li>
+	<li>paperclip/carrierwave</li>
+	<li>aasm/state_machine</li>
+	<li>acts-as-taggable-on</li>
+</ul>
+</div>
+<div class="slide"><h1>2. Libraries To Make Your App More <span class="caps">DRY</span></h1>
+<ul>
+	<li>inherited_resource</li>
+	<li>simple_form/formtastic</li>
+	<li>show_for</li>
+</ul>
+</div>
+<div class="slide"><h1>3. Wrapper Libraries (Ruby DSLs)</h1>
+<ul>
+	<li>mongoid</li>
+	<li>right_aws</li>
+	<li>sunspot-rails (sunspot &#8211; rsolr)</li>
+	<li>whenever</li>
+	<li>httparty</li>
+	<li>tiny_mce</li>
+</ul>
+</div>
+<div class="slide"><h1>Specifying Versions</h1>
+<pre>
+	gem 'foobar', '&gt;= 4.3.2' # probably not backwards compatible
+	gem 'foobar', '~&gt; 4.3'   # should be backwards compatible
+	gem 'foobar', '~&gt; 4.3.2' # most likely backwards compatible
+	gem 'foobar', '4.3.2'    # version lock
+</pre>
+</div>
+<div class="slide"><h1>Version Lock/Promiscuity (Hell)</h1>
+<p>&#8220;In systems with many dependencies, releasing new package versions can quickly become a nightmare. If the dependency specifications are too tight, you are in danger of version lock (the inability to upgrade a package without having to release new versions of every dependent package). If dependencies are specified too loosely, you will inevitably be bitten by version promiscuity (assuming compatibility with more future versions than is reasonable). Dependency hell is where you are when version lock and/or version promiscuity prevent you from easily and safely moving your project forward.&#8221;</p>
+</div>
+<div class="slide"><h1>Look at all the libs I&#8217;m Not Depending On</h1>
+<div style="font-size: 80%">
+<ul>
+	<li>carrierwave and fog</li>
+	<li>minimagick/rmagick</li>
+	<li>s3_swf_upload and aws/s3</li>
+	<li>httparty</li>
+	<li>restful_acl</li>
+	<li>whenever</li>
+	<li>restful_authentication</li>
+	<li>ssl_requirement</li>
+	<li>friendly_id &#8211; babosa</li>
+	<li>FasterCSV (replaced in Ruby 1.9.2)</li>
+	<li>logworm_amqp (json, minion, amqp, bunny, eventmatchine, ruby-hmac, memcache-client, hpricot, oauth, heroku)	<br />
+</div></li>
+</ul>
+</div>
+<div class="slide"><h1>Libraries I Still Depend On</h1>
+<ul>
+	<li>rails (bundler, treetop, rake, thor, erubis, builder, tzinfo, i18n, mime-types etc.)</li>
+	<li>pg</li>
+	<li>delayed_job</li>
+	<li>right_aws (Github fork)</li>
+	<li>mongo (bson, bson_etx)</li>
+</ul>
+</div>
+<div class="slide"><h1>Resources</h1>
+<ul>
+	<li><a href="http://yehudakatz.com/2010/08/21/using-considered-harmful-or-whats-wrong-with" title="or, What&#39;s Wrong With &amp;gt;=">Using &gt;= Considered Harmful</a></li>
+	<li><a href="http://semver.org">Semantic Versioning</a></li>
+	<li><a href="http://docs.rubygems.org/read/chapter/7">RubyGems Versioning Policies</a></li>
+</ul></div>
+</div>
+
+<!-- Syntax Highlighter -->
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shCore.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCSharp.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushPhp.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushJScript.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushJava.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushVb.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushSql.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushXml.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushDelphi.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushPython.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushRuby.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCss.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCpp.js"></script>
+<script language="javascript">
+dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+</body>
+</html>

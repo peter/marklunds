@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>RSpec Introduction</title>
+  <!-- metadata -->
+  <meta name="generator" content="S5" />
+  <meta name="version" content="S5 1.1" />
+  <meta name="presdate" content="20061113" />
+  <meta name="author" content="Peter Marklund" />
+  <meta name="company" content="Peter Marklund" />
+  <!-- configuration parameters -->
+  <meta name="defaultView" content="slideshow" />
+  <meta name="controlVis" content="hidden" />
+  <!-- style sheet links -->
+  <link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+  <link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+  <link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+  <link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+  <!-- embedded styles -->
+  <style type="text/css" media="all">
+  .imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+  #anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+  #anim img {position: absolute; top: 42px; left: 24px;}
+  img#me01 {top: 0; left: 0;}
+  img#me02 {left: 23px;}
+  img#me04 {top: 44px;}
+  img#me05 {top: 43px;left: 36px;}
+  </style>
+  <!-- S5 JS -->
+  <script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+  <div class="layout">
+    <div id="controls"><!-- DO NOT EDIT --></div>
+    <div id="currentSlide"><!-- DO NOT EDIT --></div>
+    <div id="header"></div>
+    <div id="footer">
+      <h1>RSpec Introduction</h1>
+      <h2>Diino &#8226; Feb 27, 2008</h2>
+    </div>
+
+  </div>
+  <div class="presentation">
+    <div class="slide">
+      <h1>RSpec Introduction</h1>
+      <h3>Peter Marklund</h3>
+      <h4><a href="http://marklunds.com/">marklunds.com</a></h4>
+      <p style="text-align: right;">
+        <img src="pix/rails1/rails.png" alt="" title="Rails Logo" />
+      </p>
+    </div>
+
+    <div class="slide">
+      <h1>What is RSpec?</h1>
+      <ul>
+        <li><a href="http://rspec.info">A Ruby Framework</a> for
+          <a href="http://behaviour-driven.org/">Behaviour Driven Development (BDD)</a></li>
+        <li>a Story Framework for describing behaviour at the application level</li>
+        <li>a Spec Framework for describing behaviour at the object level</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>The Test Driven Development Cycle (TDD)</h1>
+      <ol>
+        <li>Write a test that specifies a tiny bit of functionality</li>
+        <li>Ensure the test fails (you haven't built the functionality yet!)</li>
+        <li>Write only the code necessary to make the test pass</li>
+        <li>
+            Refactor the code, ensuring that it has the simplest design possible
+            for the functionality built to date
+        </li>
+      </ol>
+    </div>
+
+    <div class="slide">
+      <h1>Difference Between TDD and BDD</h1>
+      <ul>
+        <li>New terminology - from tests to specifications</li>
+        <li>An evolution from <a href="http://wiki.pragmatus.com/index.php?title=Test_Driven_Development_with_Ruby">TDD</a> and Domain Driven Design</li>
+        <li>Terminology and getting the words right matters</li>
+        <li>Client and developers sharing a common vocabulary</li>
+        <li>The vision is the ability for the client to be able to write down requirements in plain text and have them be executable</li>
+        <li>Specifications are more documenting and <a href="http://www.marklunds.com/articles/one/357">communicate better</a> than tests</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>Unhurriedness</h1>
+      <p>
+        "There's an impossible-to-express quality about test-first design that gives you a sense of unhurriedness. You are actually moving very quickly, but there's an unhurriedness because you are creating little micro-goals for yourself and satisfying them. At each point you know you are doing one micro-goal piece of work, and it's done when the test passes. That is a very calming thing. It reduces the scope of what you have to think about. You don't have to think about everything you have to do in the class. You just have to think about one little piece of responsibility. You make that work and then you refactor it so everything is very nicely designed."
+      </p>
+
+      <p>
+        - Martin Fowler
+      </p>
+    </div>
+
+    <div class="slide">
+      <h1>Getting Started with RSpec on Rails</h1>
+      <ul>
+        <li>script/plugin install http://rspec.rubyforge.org/svn/tags/CURRENT/rspec</li>
+        <li>script/plugin install http://rspec.rubyforge.org/svn/tags/CURRENT/rspec_on_rails</li>
+        <li>script/generate rspec</li>
+        <li>script/generate rspec_model|rspec_controller|rspec_scaffold</li>
+        <li>script/spec --help</li>
+        <li>spec/spec.opts</li>
+        <li>--format h:rspec.html</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>autotest</h1>
+      <ul>
+        <li>sudo gem install ZenTest</li>
+        <li>cd RAILS_ROOT; autotest</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>RSpec Basics</h1>
+      <ul>
+        <li>There are contexts (describe) with examples, before and after blocks</li>
+        <li>Examples can be pending</li>
+        <li>Spec::Expectations - Object#should(matcher) and Object#should_not(matcher)</li>
+        <li><a href="http://rspec.info/rdoc/classes/Spec/Matchers.html">Spec::Matchers</a> - you can write your own</li>
+        <li>Predicates: be_nil, be_empty, be_valid, be_instance_of etc.</li>
+        <li>raise_error</li>
+        <li>lambda { ... }.should change(Article, :count).from(3).to(5)</li>
+        <li>team.should have(11).players, have_at_least, have_at_most, include(joe)</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>Model Specs</h1>
+      <ul>
+        <li>Specify your validations logic, i.e. which params must be present to create an object</li>
+        <li>Specify the behaviour of any custom code in your models</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>Mocking and Message Expectations</h1>
+      <ul>
+        <li>my_mock = mock(name)</li>
+        <li><a href="http://rspec.info/documentation/mocks/message_expectations.html">my_mock.should_receive(:msg)</a></li>
+        <li>my_mock.should_not_receive(:msg)</li>
+        <li>my_mock.should_receive(:msg).any_number_of_times</li>
+        <li>my_mock.should_receive(:msg).exactly(n).times.with(a, :boolean, "b").and_return("foobar")</li>
+        <li>my_mock.should_receive(:msg).and_raise(RuntimeError)</li>
+        <li>MyModel.should_receive(:find).with(id).and_return(@mock_model_instance)</li>
+        <li>Alternative mocking frameworks: Flexmock, Mocha</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>Stubbing</h1>
+      <ul>
+        <li>my_instance.stub!(:msg).and_return(value)</li>
+        <li>MyClass.stub!(:msg).and_return(value)</li>
+        <li>Unlike with message expectations, when you stub a method you do not require it to be invoked</li>
+      </ul>
+    </div>
+
+    <div class="slide">
+      <h1>Controller Specs</h1>
+      <ul>
+        <li>I remove view specs and use integrate_views in my controller specs</li>
+        <li>Test that only appropriate users can access your actions</li>
+        <li>Check the response code (success, redirect etc.)</li>
+        <li>Check all instance variables through the assigns method</li>
+        <li>Check that key data and HTML is on the page with response.should have_tag</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

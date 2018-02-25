@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" dir="ltr" lang="en"><head>	
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="keywords" content="Test Driven Development with Ruby">
+<link rel="shortcut icon" href="http://wiki.pragmatus.com/favicon.ico"><title>Test Driven Development with Ruby - Peter Marklund's Wiki</title>
+	<div id="globalWrapper">
+		<div id="column-content">
+	<div id="content">
+		<a name="top" id="top"></a>
+				<h1 class="firstHeading">Test Driven Development with Ruby</h1>
+		<div id="bodyContent">
+			<h3 id="siteSub">By <a href="http://marklunds.com">Peter Marklund</a> on the 9th of May 2006</h3>
+			<div id="contentSub"></div>
+<ul>
+<li class="toclevel-1"><a href="#Introduction"><span class="tocnumber">1</span> <span class="toctext">Introduction</span></a></li>
+<li class="toclevel-1"><a href="#What_is_Test_Driven_Development_.28TDD.29.3F"><span class="tocnumber">2</span> <span class="toctext">What is Test Driven Development (TDD)?</span></a></li>
+<li class="toclevel-1"><a href="#The_Rails_Testing_Landscape"><span class="tocnumber">3</span> <span class="toctext">The Rails Testing Landscape</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Overview"><span class="tocnumber">3.1</span> <span class="toctext">Overview</span></a></li>
+<li class="toclevel-2"><a href="#Integration_tests"><span class="tocnumber">3.2</span> <span class="toctext">Integration tests</span></a></li>
+<li class="toclevel-2"><a href="#Helper_tests"><span class="tocnumber">3.3</span> <span class="toctext">Helper tests</span></a></li>
+<li class="toclevel-2"><a href="#Controller_tests"><span class="tocnumber">3.4</span> <span class="toctext">Controller tests</span></a></li>
+<li class="toclevel-2"><a href="#Model_tests"><span class="tocnumber">3.5</span> <span class="toctext">Model tests</span></a>
+<ul>
+<li class="toclevel-3"><a href="#Example:_Refactoring"><span class="tocnumber">3.5.1</span> <span class="toctext">Example: Refactoring</span></a></li>
+<li class="toclevel-3"><a href="#Example:_Manual_Testing_and_Reproducing_Bugs"><span class="tocnumber">3.5.2</span> <span class="toctext">Example: Manual Testing and Reproducing Bugs</span></a></li>
+</ul>
+</li>
+<li class="toclevel-2"><a href="#Tips"><span class="tocnumber">3.6</span> <span class="toctext">Tips</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Test_Driven_Scripting"><span class="tocnumber">4</span> <span class="toctext">Test Driven Scripting</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Background"><span class="tocnumber">4.1</span> <span class="toctext">Background</span></a></li>
+<li class="toclevel-2"><a href="#Regression_Testing"><span class="tocnumber">4.2</span> <span class="toctext">Regression Testing</span></a></li>
+<li class="toclevel-2"><a href="#Reproducing_Bugs"><span class="tocnumber">4.3</span> <span class="toctext">Reproducing Bugs</span></a></li>
+<li class="toclevel-2"><a href="#Code_Coverage"><span class="tocnumber">4.4</span> <span class="toctext">Code Coverage</span></a></li>
+<li class="toclevel-2"><a href="#Test_Coverage"><span class="tocnumber">4.5</span> <span class="toctext">Test Coverage</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Interview_with_Martin_Fowler"><span class="tocnumber">5</span> <span class="toctext">Interview with Martin Fowler</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Unhurriedness"><span class="tocnumber">5.1</span> <span class="toctext">Unhurriedness</span></a></li>
+<li class="toclevel-2"><a href="#When_to_Stop"><span class="tocnumber">5.2</span> <span class="toctext">When to Stop</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Other_Methods_for_Reducing_the_Bug_Count"><span class="tocnumber">6</span> <span class="toctext">Other Methods for Reducing the Bug Count</span></a>
+<ul>
+<li class="toclevel-2"><a href="#Think.21"><span class="tocnumber">6.1</span> <span class="toctext">Think!</span></a></li>
+<li class="toclevel-2"><a href="#Simplify"><span class="tocnumber">6.2</span> <span class="toctext">Simplify</span></a></li>
+<li class="toclevel-2"><a href="#Work_with_Others"><span class="tocnumber">6.3</span> <span class="toctext">Work with Others</span></a></li>
+<li class="toclevel-2"><a href="#Do_Manual_Testing"><span class="tocnumber">6.4</span> <span class="toctext">Do Manual Testing</span></a></li>
+<li class="toclevel-2"><a href="#Monitor_your_Site_in_Production"><span class="tocnumber">6.5</span> <span class="toctext">Monitor your Site in Production</span></a></li>
+</ul>
+</li>
+<li class="toclevel-1"><a href="#Resources"><span class="tocnumber">7</span> <span class="toctext">Resources</span></a></li>
+</ul>
+</td></tr></tbody></table><script type="text/javascript"> if (window.showTocToggle) { var tocShowText = "show"; var tocHideText = "hide"; showTocToggle(); } </script>
+<a name="Introduction"></a><h2> Introduction </h2>
+<p>I wrote this document for my presentation at the <a href="http://marklunds.com/articles/one/302" class="external text" title="http://marklunds.com/articles/one/302" rel="nofollow">Rails Recipes Meetup in Stockholm</a>
+on the 9th of May 2006. It covers Test Driven Development in general
+and how it can be applied to Ruby scripting and web development with
+Ruby on Rails. Some famliarity with these technologies is a
+prerequisite to fully understanding the text.
+</p>
+<a name="What_is_Test_Driven_Development_.28TDD.29.3F"></a><h2> What is Test Driven Development (TDD)? </h2>
+<ul><li> Motivation:
+</li></ul>
+<pre>1. If something can go wrong, it will.
+2. If anything simply cannot go wrong, it will anyway.
+3. Nothing is ever as simple as it seems. 
+</pre>
+<ul><li> Repeat after me:
+</li></ul>
+<pre>1. Write a test that specifies a tiny bit of functionality
+2. Ensure the test fails (you haven't built the functionality yet!)
+3. Write only the code necessary to make the test pass
+4. Refactor the code, ensuring that it has the simplest design possible
+   for the functionality built to date 
+</pre>
+<ul><li> Goal: clean code that works
+</li></ul>
+<ul><li> Benefits: a decoupled design and documentation on how the code was intended to be used.
+</li></ul>
+<a name="The_Rails_Testing_Landscape"></a><h2> The Rails Testing Landscape </h2>
+<p>I previously wrote <a href="http://marklunds.com/articles/one/272" class="external text" title="http://marklunds.com/articles/one/272" rel="nofollow">an article</a>
+on how I test my website with model and controller tests. In this
+section I add some new lessons that I've learned and complete the
+picture with integration and helper tests.
+</p><p>The examples in this section are drawn from my homepage. You may view the source code and do an svn checkout from <a href="http://svn.marklunds.com/trunk" class="external free" title="http://svn.marklunds.com/trunk" rel="nofollow">http://svn.marklunds.com/trunk</a>.
+</p>
+<a name="Overview"></a><h3> Overview </h3>
+<pre>
+Testing tool                   Interface
+---------------           -----------------------
+Selenium            &lt;-&gt;    IE, Firefox, Safari, ...
+                                 | 
+WWW::Mechanize, LWP &lt;-&gt;        HTTP
+                                 |
+                               Rails
+                                 |
+Integration tests   &lt;-&gt;        Routes
+                                 |
+                               Views
+                                 |
+Unit tests          &lt;-&gt;        Helpers
+                                 |
+Functional tests    &lt;-&gt;      Controllers
+                                 |
+Unit tests          &lt;-&gt;        Models
+
+</pre>
+<a name="Integration_tests"></a><h3> Integration tests </h3>
+<p>With integration tests you can simulate whole use cases, aka user
+stories. An example would be user bob logs in, bob creates an order,
+bob logs out. Integration tests can also simulate multiple users and
+help recreate session problems.
+</p><p>As of May 10th 2006, you need to apply the following little patch to make the assert_tag method work (see <a href="http://dev.rubyonrails.org/ticket/4631" class="external text" title="http://dev.rubyonrails.org/ticket/4631" rel="nofollow">rails bug 4631</a>) together with integration tests:
+</p>
+<pre>
+===================================================================
+--- vendor/rails/actionpack/lib/action_controller/test_process.rb       (revision 4333)
++++ vendor/rails/actionpack/lib/action_controller/test_process.rb       (working copy)
+@@ -416,7 +416,7 @@
+     end
+
+     def html_document
+-      @html_document ||= HTML::Document.new(@response.body)
++      HTML::Document.new(@response.body)
+     end
+
+     def find_tag(conditions)
+
+</pre>
+<p>Here is an example of a simple integration test I use for my homepage:
+</p>
+<pre>
+require "#{File.dirname(__FILE__)}/../test_helper"
+
+class AdminTest &lt; ActionController::IntegrationTest
+  fixtures :users, :posts, :categories, :categories_posts
+
+  # Simulate an admin creating a new post and going back to the front
+  # page to view the post
+  def test_creating_post
+    # View the front page before creating the post
+    get_page "/", "peter/index"
+    assert_posts 3
+
+    # Go to login page
+    get_page "/login/login", "login/login"
+    # Check form is present
+    assert_tag :tag =&gt; 'form',
+                   :attributes =&gt; 
+                      {:action =&gt; '/login/login',
+                        :method =&gt; 'post'
+                      }
+    
+    # Log in
+    post_via_redirect "/login/login", :user =&gt; {
+         :name =&gt; 'admin',
+        :password =&gt; 'abracadabra'
+        }
+    assert_response :success
+    assert_template "admin/admin/index"
+
+    # Visit posts admin index page
+    get_page "/admin/post", "admin/post/list"
+    
+    # Visit page for creating post
+    get_page "/admin/post/new", "admin/post/new"
+
+    # Create post
+    post_via_redirect "/admin/post/create", :post =&gt; {
+        :subject =&gt; 'Integration testing is great!'
+        }
+    assert_response :success
+    assert_template "admin/post/list"
+
+    # Go back to homepage and view the new post
+    get_page "/", "peter/index"
+    assert_posts 4
+    assert_tag :content =&gt; "Integration testing is great!"
+  end
+
+  private
+  def get_page(url, expect_template)
+    get url
+    assert_response :success
+    assert_template expect_template
+  end
+
+  # Assert there are a certain number of posts in the HTML
+  def assert_posts(post_count)
+    assert_tag :tag =&gt; 'div',
+      :attributes =&gt; {:id =&gt; 'content'},
+      :children =&gt; {:count =&gt; post_count,
+                          :only =&gt; {
+                            :tag =&gt; 'div',
+                            :attributes =&gt; {
+                              :class =&gt; 'post_body'
+                            }
+                          }
+                        }
+  end
+end
+
+</pre>
+<a name="Helper_tests"></a><h3> Helper tests </h3>
+<p>Recipe 44 in the Rails Recipes book teaches us how to write tests
+for the helper methods we use in our views. For my homepage I only have
+a single helper method and here is the test case for it:
+</p>
+<pre>
+require File.dirname(__FILE__) + '/../test_helper'
+
+# Test case for the methods in PeterHelper
+class PeterHelperTest &lt; Test::Unit::TestCase
+  include ActionView::Helpers::UrlHelper
+  include ActionView::Helpers::TextHelper
+  include ActionView::Helpers::TagHelper
+  include PeterHelper
+
+  def setup
+    @controller = PeterController.new
+    @controller.instance_eval { @params = {}, @request = ActionController::TestRequest.new }	
+    @controller.send(:initialize_current_url)
+  end
+
+  def test_full_post_url
+    assert_equal "http://marklunds.com/articles/one/23", full_post_url(23)
+  end
+end
+
+</pre>
+<p>This test case is not particularly exciting, but it serves to demonstrate how to write helper tests.
+</p>
+<a name="Controller_tests"></a><h3> Controller tests </h3>
+<p>In the controller tests you check for example that your controller
+actions fetch the right content from the database, render the right
+views, and do the right redirects. You can also do validation against
+the HTML output of the views here using the assert_tag method. <a href="http://svn.marklunds.com/marklunds/trunk/test/functional/peter_controller_test.rb" class="external text" title="http://svn.marklunds.com/marklunds/trunk/test/functional/peter_controller_test.rb" rel="nofollow">Here</a> is an example of a controller test.
+</p>
+<a name="Model_tests"></a><h3> Model tests </h3>
+<p>In model tests you typically check that your validation code is
+working, go through the CRUD (create, read, update, delete) cycle, and
+check any methods you've added. There is typically quite a bit of
+overlap between model and controller tests, and since models in Rails
+typically have so little code, you may feel that you are testing the
+Rails framework rather than your own code. However it's better to test
+too much than too little. You should spell out your assumptions about
+how the code works in your tests. <a href="http://svn.marklunds.com/marklunds/trunk/test/unit/post_test.rb" class="external text" title="http://svn.marklunds.com/marklunds/trunk/test/unit/post_test.rb" rel="nofollow">Here</a> is an example model test.
+</p>
+<a name="Example:_Refactoring"></a><h4> Example: Refactoring </h4>
+<p>When writing this document I found the following code in the Post class for the weblog on my homepage:
+</p>
+<pre>
+  def self.find_by_category(category_id)
+    # I couldn't get Rails to do eager (pre) loading for this query
+    # so there will be one categories query per post. TODO: make this
+    # page (and other pages) paginated. 
+    # If the number of categories queries really
+    # became a problem I could of course do the eager loading
+    # manually by writing the whole SQL query and 
+    # instantiating the objects myself.
+    find(:all, :order =&gt; "created_at DESC", 
+               :conditions =&gt; ["posts.private = 0
+                           AND posts.id = categories_posts.post_id
+                           AND categories_posts.category_id = ?",
+                   category_id],
+               :joins =&gt; ', categories_posts')
+  end
+
+</pre>
+<p>I figured that Rails had probably fixed the&nbsp;:include problem by
+now, refactored the method and assured myself that the I hadn't broken
+anything by re-running my tests:
+</p>
+<pre>
+# Refactored method:
+
+  def self.find_by_category(category_id)
+    find(:all, :order =&gt; "created_at DESC", 
+               :conditions =&gt; ["posts.private = 0
+                  AND categories.id = ?", category_id],
+               :include =&gt; 'categories')
+  end
+
+# Tests still pass:
+
+ $ rake
+...
+Finished in 0.13 seconds.
+
+1 tests, 1 assertions, 0 failures, 0 errors
+
+</pre>
+<a name="Example:_Manual_Testing_and_Reproducing_Bugs"></a><h4> Example: Manual Testing and Reproducing Bugs </h4>
+<p>When browsing my website in development with the test fixtures data
+(tip: the rake task db:fixtures:load loads the fixtures for you) I
+noticed that the menu in my weblog would list categories with no public
+posts. Now of course I asked myself how my tests could have missed
+this. It turns out I had test coverage for this bug only I hadn't
+realized it was a problem when I wrote the tests so the tests were
+making erroneous assertions:
+</p>
+<pre>
+# In peter_controller_test.rb:
+  def assert_layout_used
+    assert_not_nil assigns(:archive_years)
+    assert_equal 2, assigns(:archive_years).size
+    assert_not_nil assigns(:categories)
+    assert_equal 3, assigns(:categories).size  # This should be 2!
+
+    assert_tag :tag =&gt; 'div', :attributes =&gt; {:id =&gt; 'menu'}
+    assert_tag :tag =&gt; 'div', :attributes =&gt; {:id =&gt; 'content'}   
+  end
+
+# In category_test.rb:
+# Testing shouldn't be in the list here since that category
+# has no public posts
+  def test_all_categories
+    assert_equal ['Business', 'Programming', 'Testing'],
+                 Category.all_categories.map { |c| c.name }
+  end  
+
+</pre>
+<p>Correcting the tests I was able to reproduce the bug with rake. The
+next step was to fix the bug which was fairly easy, I just needed to
+add a sub-select condition to the categories query:
+</p>
+<pre>
+  def self.all_categories
+    find(:all, :conditions =&gt; 
+    ['id in (select distinct category_id
+           from categories_posts,
+                posts
+           where categories_posts.post_id = posts.id
+             and posts.private = 0)'], 
+      :order =&gt; "name")
+  end
+
+</pre>
+<a name="Tips"></a><h3> Tips </h3>
+<ul><li> Write small and focused test methods that check only one aspect of your code.
+</li><li> Avoid fragile assertions on human readable text such as error or flash messages.
+</li><li> Keep your test code DRY and readable by creating an API or even better a Domain Specific Language (DSL). See Jamis Buck's <a href="http://jamis.jamisbuck.org/articles/2006/04/20/writing-domain-specific-languages" class="external text" title="http://jamis.jamisbuck.org/articles/2006/04/20/writing-domain-specific-languages" rel="nofollow">article on DSLs</a>.
+</li><li> If you are using database agnostic migrations you can use SQLite to speed up your test database.
+</li><li> Set up a script that runs tests on every source commit or at
+least a couple of times a day. At one of my previous jobs this was
+known as the auto-shame script &nbsp;:-) See the continuous_builder
+plugin and recipe 46 in the Rails Recipes book.
+</li><li> Use the coverage library to find patches of unexecuted code (more about this below).
+</li><li> Transactional fixtures can bite you. If you are using transactions within your code they won't work.
+</li><li> The RailsTidy plugin adds the assert_tidy method to
+Test::Unit::TestCase so that you can can validate the HTML of your
+views in your controller and integration tests.
+</li></ul>
+<a name="Test_Driven_Scripting"></a><h2> Test Driven Scripting </h2>
+<p>In this section I talk about lessons I learned from applying test
+driven development to command line scripting with Ruby. You may view
+the source code and do an svn checkout from <a href="http://svn.marklunds.com/bin/trunk" class="external free" title="http://svn.marklunds.com/bin/trunk" rel="nofollow">http://svn.marklunds.com/bin/trunk</a> to better be able to follow the examples.
+</p>
+<a name="Background"></a><h3> Background </h3>
+<ul><li> I needed a script for uploading photos to my website
+</li><li> What I had was a collection of untested Perl and Bash hacks
+</li><li> By converting to command line scripts that invoke Ruby
+classes I achieved clean and testable codebase and a framework for
+adding new scripts
+</li><li> I use a setup similar to Rails with the Test::Unit library and the rake build tool
+</li></ul>
+<a name="Regression_Testing"></a><h3> Regression Testing </h3>
+<p>I run tests when I refactor to verify that I haven't changed or broken current functionality. Example:
+</p>
+<pre>
+# Before refactoring:
+
+    def despacify(dir)
+      Dir.entries(dir).each do |filename|
+        next if ['.', '..'].include? filename
+	filepath = File.join(dir, filename)
+        despacify(filepath) if File.directory?(filepath)
+        if filename =~ /\s/
+          new_filename = filename.gsub(/\s/, '_')
+          FileUtils.mv filepath, File.join(dir, new_filename)
+        end
+      end      
+    end
+
+</pre>
+<pre>
+# After refactoring:
+
+    def despacify(dir)
+      Find.find(dir) do |path|
+        if File.basename(path) =~ /\s/
+          new_filename = File.basename(path).gsub(/\s/, '_')
+          FileUtils.mv path, File.join(dir, new_filename)
+        end
+      end      
+    end
+
+</pre>
+<pre>
+# Test result:
+
+     1) Failure:
+    test_main_usecase(TestDespacifier) [./test/photos/test_despacifier.rb:34]:
+    &lt;[".", "..", "file_4"]&gt; expected but was
+    &lt;[".", "..", "file 4"]&gt;.
+
+</pre>
+<p>The reason the refactored code fails is an ordering problem.
+Sometimes the code renames (despacifies) a directory and later tries to
+rename the files in that directory with the old directory name.
+Possible resolutions:
+</p>
+<ul><li> revert the refactoring
+</li><li> simplify the behaviour (despacify only regular files, not directories) so the refactored code works
+</li><li> fix the ordering problem. 
+</li></ul>
+<a name="Reproducing_Bugs"></a><h3> Reproducing Bugs </h3>
+<p>When I discover a bug I write a test to reproduce it. Example:
+</p>
+<pre>
+# Before bug fix:
+
+    # Return given path (which may be absolute or relative to the current directory) 
+    # relative to from_path
+    def self.make_relative(path, from_path)
+      Pathname.new(path).relative_path_from(Pathname.new(from_path)).to_s
+    end
+
+</pre>
+<pre>
+# Test to reproduce bug:
+
+  def test_make_relative
+    # Reproduce bug when first arg is relative and second absolute
+    assert_equal("../2006/stockholm/valborg", 
+      Photos::Resizor.make_relative("2006/stockholm/valborg", File.expand_path(PHOTOS_DIR)))
+  end
+
+</pre>
+<pre>
+# Test result:
+
+  1) Error:
+test_make_relative(TestResizor):
+ArgumentError: relative path between absolute and relative path:
+#&lt;Pathname:2006/stockholm/valborg&gt;, 
+#&lt;Pathname:/home/Peter Marklund/bin/test_resizor_photos_dir&gt;
+    /usr/lib/ruby/1.8/pathname.rb:529:in `relative_path_from'
+
+</pre>
+<pre>
+# After bug fix:
+
+    # Return given path (which may be absolute or relative 
+    # to the current directory) relative to from_path
+    def self.make_relative(path, from_path)
+      # There seems to be a bug in the Pathname#relative_path_from 
+      # method when first argument is relative and second
+      # absolute. If we make both paths absolute it works
+      Pathname.new(File.expand_path(path)).
+        relative_path_from(Pathname.new(File.expand_path(from_path))).to_s
+    end
+
+</pre>
+<pre>
+# Test result:
+
+  Finished in 1.341 seconds.
+  
+  2 tests, 11 assertions, 0 failures, 0 error
+
+</pre>
+<a name="Code_Coverage"></a><h3> Code Coverage </h3>
+<p>With the coverage library I can check for patches of unexecuted
+code. Code that has never run may very well contain misspelled variable
+or class names or have incorrect syntax. Example:
+</p>
+<pre>
+gem install coverage
+ruby -rcoverage test/run.rb
+
+# Found code not covered:
+
+      if File.exists?(@target_dir)
+ 	raise(InvalidInputError, 
+ 	      "Target directory '#{target_dir}' already exists - aborting")
+      end
+
+
+</pre>
+<pre>
+# Test to cover code:
+
+  def test_target_dir_exists
+    assert_raise(InvalidInputError) do
+      MergeDirs.new([@dir1['name'], @dir2['name'], @dir1['name']])
+    end
+  end
+
+
+</pre>
+<pre>
+# Test result exposing the missing "@" in "#{target_dir}": 
+
+   1) Failure:
+  test_target_dir_exists(TestMergeDirs) [test/test_merge_dirs.rb:47]:
+  &lt;InvalidInputError&gt; exception expected but was
+  Class: &lt;NameError&gt;
+  Message: &lt;"undefined local variable or method `target_dir' for #&lt;MergeDirs:0x383018&gt;"&gt;
+  ---Backtrace---
+  ./test/../lib/merge_dirs.rb:17:in `initialize'
+  test/test_merge_dirs.rb:48:in `test_target_dir_exists'
+  test/test_merge_dirs.rb:47:in `test_target_dir_exists'
+  ---------------
+  
+  3 tests, 13 assertions, 1 failures, 0 errors
+
+</pre>
+<a name="Test_Coverage"></a><h3> Test Coverage </h3>
+<p>I use assertions to check that the code behaves correctly. Remember
+that code coverage does not equal test coverage. Code coverage only
+means the code has executed, not that it produced the right results.
+The number of assertions per lines of code can serve as a crude measure
+of test coverage. As shown below I have 38 assertions for 324 lines of
+code, i.e. about one assertion per every 10 line of code.
+</p>
+<pre>
+  $ rake
+  (in /home/Peter Marklund/bin)
+  /usr/bin/ruby -Ilib "/usr/lib/ruby/gems/1.8/gems/rake-0.7.1/lib/rake/rake_test_loader.rb"   "test/test_merge_dirs.rb" "test/photos/test_despacifier.rb" "test/photos/test_publisher.rb"   "test/photos/test_resizor.rb" 
+  Loaded suite /usr/lib/ruby/gems/1.8/gems/rake-0.7.1/lib/rake/rake_test_loader
+  Started
+  .........
+  Finished in 2.433 seconds.
+
+  9 tests, 38 assertions, 0 failures, 0 errors
+
+  $ rake stats
+  (in /home/Peter Marklund/bin)
+  +----------------------+-------+-------+---------+---------+-----+-------+
+  | Name                 | Lines |   LOC | Classes | Methods | M/C | LOC/M |
+  +----------------------+-------+-------+---------+---------+-----+-------+
+  | Code                 |   437 |   324 |      10 |      35 |   3 |     7 |
+  |   Tests              |   345 |   252 |       4 |      28 |   7 |     7 |
+  +----------------------+-------+-------+---------+---------+-----+-------+
+  | Total                |   782 |   576 |      14 |      63 |   4 |     7 |
+  +----------------------+-------+-------+---------+---------+-----+-------+
+    Code LOC: 324     Test LOC: 252     Code to Test Ratio: 1:0.8
+
+</pre>
+<p>You can find gaps in your test coverage by searching for if
+statements that you could reverse or lines of code that you could
+comment out without the tests breaking.
+</p>
+<a name="Interview_with_Martin_Fowler"></a><h2> Interview with Martin Fowler </h2>
+<a name="Unhurriedness"></a><h3> Unhurriedness </h3>
+<p><a href="http://www.artima.com/intv/testdriven2.html" class="external text" title="http://www.artima.com/intv/testdriven2.html" rel="nofollow"><b>Martin Fowler:</b></a>
+</p><p><em>"There's an impossible-to-express quality about test-first
+design that gives you a sense of unhurriedness. You are actually moving
+very quickly, but there's an unhurriedness because you are creating
+little micro-goals for yourself and satisfying them. At each point you
+know you are doing one micro-goal piece of work, and it's done when the
+test passes. That is a very calming thing. It reduces the scope of what
+you have to think about. You don't have to think about everything you
+have to do in the class. You just have to think about one little piece
+of responsibility. You make that work and then you refactor it so
+everything is very nicely designed."
+</em>
+</p>
+<a name="When_to_Stop"></a><h3> When to Stop </h3>
+<p><a href="http://www.artima.com/intv/testdriven4.html" class="external text" title="http://www.artima.com/intv/testdriven4.html" rel="nofollow"><b>Bill Venners:</b></a>
+</p><p><em>"When do you stop writing tests? You say in Refactoring,
+"There's a point of diminishing returns with testing, and there's a
+danger that by writing too many tests you become discouraged and end up
+not writing any. You should concentrate on where the risk is." How do
+you know where the risk is?"
+</em>
+</p><p><b>Martin Fowler:</b>
+</p><p><em>"Ask yourself which bits of the program would you be scared
+to change? One test I've come up with since the Refactoring book is
+asking if there is any line of code that you could comment out and the
+tests wouldn't fail? If so, you are either missing a test or you've got
+an unnecessary line of code. Similarly, take any Boolean expression.
+Could you just reverse it? What test would fail? If there's not a test
+failing, then, you've obviously got some more tests to write or some
+code to remove." </em>
+</p>
+<a name="Other_Methods_for_Reducing_the_Bug_Count"></a><h2> Other Methods for Reducing the Bug Count </h2>
+<p>Arguably, TDD has been hyped lately and it is not a silver bullet.
+Remember that TDD is only as good as the tests are. In this section I
+offer some complementary methods you should consider.
+</p>
+<a name="Think.21"></a><h3> Think! </h3>
+<ul><li> Review and care about your code. Think hard about what could go wrong
+</li><li> Be knowledgeable about the tools that you use - read the docs.
+</li><li> Understand the problem domain
+</li><li> Be thorough, methodical, and patient
+</li></ul>
+<a name="Simplify"></a><h3> Simplify </h3>
+<p>Complex systems tend to be more error prone than simple ones.
+</p>
+<ul><li> Reduce functional scope. Projects have limited time and
+resouces and the more functional ground you have to cover the lower the
+quality will be.
+</li><li> Elliminate special cases and convoluted logic. Look for FIXME comments in the code such as "Yes I know this is messy, but...".
+</li><li> Get rid of external dependencies. A warning flag could be a
+README files saying "before you do this, remember to run this or that
+script". </li><li> Make your code less generic. Don't build for future anticipated requirements. 
+</li><li> Streamline your implementation. Reduce the line count for
+your code whilst maintaining readability. Ruby is a great help in this
+respect.
+</li></ul>
+<a name="Work_with_Others"></a><h3> Work with Others </h3>
+<ul><li> Teach someone how your system works. This is a way to discover
+if your implementation is convoluted and needs simplifying. It's also a
+test of your own understanding of the system. </li><li> Have your code be reviewed by another programmer who also cares about code quality
+</li><li> Have someone write tests for your code. We tend to be blind
+to our own bugs. Typically, there is a set of circumstances that
+triggers the bug that didn't occur to you when you wrote the code or
+when you wrote the tests.
+</li></ul>
+<a name="Do_Manual_Testing"></a><h3> Do Manual Testing </h3>
+<p>Automated tests won't catch all bugs. Just bringing up your site in
+the browser running on the test database might reveal obvious problems.
+</p>
+<a name="Monitor_your_Site_in_Production"></a><h3> Monitor your Site in Production </h3>
+<p>Schedule a script to check for broken links, do markup validation,
+and check for expected tags and texts on your pages. This way you can
+respond quickly when a bug has slipped into production or your server
+is having problems. </p><p>Make sure you get notified about errors and exceptions in your
+web application. For instructions on how to do this with Rails, see
+recipe 47 in the Rails Recipes book, or google for
+rescue_action_in_public.
+</p>
+<a name="Resources"></a><h2> Resources </h2>
+<ul><li> <a href="http://en.wikipedia.org/wiki/Test_driven_development" class="external text" title="http://en.wikipedia.org/wiki/Test_driven_development" rel="nofollow">Wikipedia Definition of Test Driven Development</a>
+</li><li> <a href="http://www.objectmentor.com/writeUps/TestDrivenDevelopment" class="external text" title="http://www.objectmentor.com/writeUps/TestDrivenDevelopment" rel="nofollow">Object Mentor - Test Driven Development</a>
+</li><li> <a href="http://www.agiledata.org/essays/tdd.html" class="external text" title="http://www.agiledata.org/essays/tdd.html" rel="nofollow">Introduction to Test Driven Development</a>
+</li><li> <a href="http://www.martinfowler.com/" class="external text" title="http://www.martinfowler.com/" rel="nofollow">Martin Fowler</a>: 
+<ul><li> <a href="http://www.artima.com/intv/testdriven.html" class="external text" title="http://www.artima.com/intv/testdriven.html" rel="nofollow">An interview about test driven development</a>
+</li><li> <a href="http://www.martinfowler.com/distributedComputing/duckling.pdf" class="external text" title="http://www.martinfowler.com/distributedComputing/duckling.pdf" rel="nofollow">Testing Methods: The Ugly Duckling</a>
+</li></ul>
+</li><li> <a href="http://en.wikipedia.org/wiki/Kent_Beck" class="external text" title="http://en.wikipedia.org/wiki/Kent_Beck" rel="nofollow">Kent Beck</a>:
+<ul><li> <a href="http://www.itconversations.com/shows/detail301.html" class="external text" title="http://www.itconversations.com/shows/detail301.html" rel="nofollow">2004 Presentation: The Future of Developer Testing</a>.
+Kent talks about developer accountability, software health - software
+quality over time, cultural barriers to testing, and the decrease in
+defect rates that developer testing brings.
+</li></ul>
+</li><li> <a href="http://clarkware.com/" class="external text" title="http://clarkware.com/" rel="nofollow">Mike Clark</a> blogs about Test Driven Development with Rails
+</li><li> <a href="http://www.testdriven.com/" class="external text" title="http://www.testdriven.com" rel="nofollow">testdriven.com</a> is an online community with several of the leaders in the field
+</li><li> <a href="http://www.pragmaticprogrammer.com/titles/rails/index.html" class="external text" title="http://www.pragmaticprogrammer.com/titles/rails/index.html" rel="nofollow">Agile Web Development with Rails</a> - David Heinemeier Hansson, Dave Thomas
+</li><li> <a href="http://www.pragmaticprogrammer.com/titles/fr_rr/index.html" class="external text" title="http://www.pragmaticprogrammer.com/titles/fr_rr/index.html" rel="nofollow">Rails Recipes</a> - Chad Fowler
+</li><li> <a href="http://www.pragmaticprogrammer.com/ppbook/index.html" class="external text" title="http://www.pragmaticprogrammer.com/ppbook/index.html" rel="nofollow">The Pragmatic Programmer - From Journeyman to Master</a> - Dave Thomas, Andy Hunt
+</li><li> <a href="http://wiki.rubyonrails.com/rails/pages/HowToDoTestDrivenDevelopmentInRails" class="external text" title="http://wiki.rubyonrails.com/rails/pages/HowToDoTestDrivenDevelopmentInRails" rel="nofollow">How to do Test Driven Development in Rails</a>
+</li></ul>
+
+</div>
+</div>
+</div><!-- end of the left (by default at least) column -->
+</div>
+<!-- Served by happy in 0.88 secs. -->
+</body></html>

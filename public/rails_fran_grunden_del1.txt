@@ -1,0 +1,288 @@
+Lär Dig Ruby on Rails från Grunden
+
+Den här artikeln inleder en serie i tre delar som kommer att guida dig genom webbramverket Ruby on Rails. I små steg bygger och driftar vi en enkel webbapplikation. Vi kommer att se hur Ruby on Rails inte bara ger våra applikationer en flygande start, det leder även till eleganta och vältestade system som håller i längden.
+
+*** Ruby - ett humanare språk från Japan
+Ruby är ett generellt programmeringsspråk som utvecklades i Japan i mitten av 90-talet. Ruby syftar till att vara kraftfullare än Perl och mer objektorienterat än Python. Syntaxen kännetecknas av att vara koncis men ändå läsbar. Enkelhet och produktivitet har varit ledstjärnor för språket och tanken är att koden ska vara lätt att läsa och skriva. Språket är med andra ord optimerat för människor snarare än för datorer. Jämfört med Java är Ruby mer konsekvent i sin objektorientering - i stort sett allting är objekt. Ruby är mycket dynamiskt. Alla klasser och metoder, inklusive dem som är inbyggda i språket, kan lätt ändras efter behov under körningen av ditt program.
+
+*** Ruby on Rails - Rubys "killer app"
+Det var i 2004 som David Heinemeier Hanson tillsammans med Jason Fried byggde Basecamp. Basecamp är ett samarbetsverktyg för små team i en enkel och snygg web2.0 tappning. David hade en bakgrund inom PHP och Java men var frustrerad av dessa teknologier och valde att utveckla Basecamp i Ruby. När David på kort tid färdigställt Basecamp insåg han att mycket av vad han utvecklat var infrastruktur som andra webbutvecklare kunde dra nytta av. Sagt och gjort, David extraherade de generella delarna ur Basecamp och släppte dem till världen som ett open source projekt under namnet Ruby on Rails. Ruby on Rails (eller Rails, kort och gott) fick snabbt anhängare och dess community har vuxit lavinartat de senaste åren. Bloggosfären svämmar över med artiklar om Rails och det tycks dyka upp nya böcker om Rails var och varannan vecka. Rails har blivit förknippat med hög produktivitet, AJAX, och vågen av web2.0 siter som sveper över oss. För enterprenörer är det kostnadsbesparingar och kortare time-to-market som hägrar i Rails. För utvecklare är Rails främst ett verktyg som gör tillvaron enklare, som hjälper dem att få saker och ting gjorda med mindre och elegantare kod.
+
+Rails bygger på en Model-View-Controller (MVC) arkitektur och fäster stor vikt vid principerna DRY (Don't Repeat Yourself) och "Convention Over Configuration". DRY innebär att varje aspekt av din applikation bara kodas en gång, dvs. utan duplicering. Alla railsprojekt följer en förutbestämd filstruktur så att varje del av din kod har en naturlig plats och är lätt att hitta. Namnkonventioner används för att minimera mängden konfigurationsfiler och binda ihop alla MVC komponenter som ingår i requestcykeln. Namnen i din URL mappar direkt till namnen på dina controllers, modellklasser, databastabeller, och vyer (templates). Rails binder automatiskt ihop alla dessa delar i MVC åt dig bakom kulisserna. Rails databas API mappar varje modellklass och dess attribut till kolumnerna i en databastabell. Rubys koncisa syntax och uttrycksfullhet i kombination med Rails konventioner leder till en drastiskt reduktion av mängden kod. Detta, i kombination med att Ruby inte behöver kompileras, kortar förstås utvecklingstider och sänker kostnaden för underhåll och ändringar.
+
+En fördel med Rails är att antalet programmeringsspråk som du behöver lära dig och växla mellan i stort sett är begränsat till ett, dvs. Ruby. Ruby används både i konfigurationsfiler, vyer (för användargränssnittet), och för att generera JavaScript och SQL. Som applikationsutvecklare behöver du oftast bara befatta dig med Ruby, HTML, och CSS. Tack vare MVC och separationen av presentation från logik kan man välja att låta HTML och CSS skötas av en webbdesigner.
+
+En annan fördel med Rails är att det sänker tröskeln för att skriva automatiserade tester. Förutom en större tillförlitlighet gör automatiserade tester att du kan arbeta mer agilt och iterativt. Efter att du lagt till nya funktioner eller gjort designförbättringar, kan du köra dina tester och säkerställa att befintlig funktionalitet är intakt innan du går i drift.
+
+En introduktion av Ruby on Rails och dess underliggande filosofi är inte komplett utan ett omnämnande av programmeringsglädjen. Det är nämligen glädjen som enligt David Heinemeier Hanson är nyckeln till programmerares produktivitet. Fokuseringen på glädje tycks också löpa som en röd tråd genom hela Ruby communityt. Min förhoppning är att kunna förmedla något av den glädjen i den här artikelserien.
+
+*** Installation
+Installationen av Rails är relativt enkel, särskilt om du väljer en One-Click installer som finns att tillgå för både Windows och Mac OS X. På Unix (Linux, Mac OS X, FreeBSD etcetera) finns ett antal andra installationsalternativ som ger dig större kontroll, se nedan. Rails driftas oftast och med fördel i en Unix miljö men kan även driftas på Windows.
+
+Vad gäller editor/IDE rekommenderas framförallt TextMate på Mac OS X och RadRails (Eclipse) för andra plattformar. Behovet av IDE är inte lika stort för Ruby som för Java eller .NET. För behoven i denna artikelserie klarar du dig fint med en enkel editor som SciTE eller JEdit. På Unix är Emacs populär eftersom den har bra stöd för både Ruby och Rails.
+
+- Windows
+Gå till InstantRails hemsida (instantrails.rubyforge.org) och ladda ner och packa upp den senaste zip filen till ett bibliotek på din hårddisk. Sökvägen till biblioteket där InstantRails ligger får inte innehålla mellanslag. Jag valde biblioteket C:\rails. Exekvera sedan InstantRails.exe och svara ja på frågan om du vill generera om konfigurationsfilerna. Du kan ignorera ett eventuellt felmeddelande om att Apache inte kan starta på port 80 eftersom vi kommer att använda en annan webbserver. Du bör nu ha det lilla InstantRails fönstret uppe som visar Apache och MySQL status. Det finns ytterligare instruktioner och hjälp med felsökning på InstantRails hemsida.
+
+- Mac OS X
+One-Click installern på Mac heter Locomotive och den laddas ner och installeras från locomotive.raaum.org. Notera att Locomotive använder sig av databasen SQLite och inte inkluderar MySQL. Det finns även följande mer avancerade alternativ om du vill ha större kontroll:
+
+http://blog.duncandavidson.com/2006/04/sandboxing_rail.html
+http://hivelogic.com/narrative/articles/ruby-rails-mongrel-mysql-osx
+
+- Linux, FreeBSD
+Du kan antingen installera direkt från källkoden såsom anges för Mac OS X eller använda en package manager. Du hittar instruktioner i Rails wikin eller förstås genom att Googla (testa något i stil med "Rails openbsd installation"):
+
+http://wiki.rubyonrails.org/rails/pages/GettingStartedWithRails
+
+*** Hello World!
+Nu när du har Rails installerat är det dags för det obligatoriska "Hello World!" testet. Om du använder Locomotiv på Mac OS X så skapar du en ny applikation genom att välja "Applications->Create New" i menyn och du startar applikationen genom att trycka på den gröna knappen. För oss som inte använder Locomotive skapas en ny applikation på kommandoraden med kommandot rails. I InstantRails kommer du åt på kommandoraden genom att klicka på I:et i det övra vänstra hörnet och välja "Rails Applications" -> "Open Ruby Console Window". För att skapa och starta en ny applikation skriver du:
+
+rails hello
+cd hello
+ruby script/server
+
+Du bör nu få upp Rails välkomstsida i din webbläsare om du går till http://localhost:3000. I InstantRails kan du även starta en webbserver för din applikation genom att klicka I:et i övre vänstra hörnet och välja "Rails Applications" -> "Manage Rails Applications", klicka i checkboxen för din applikation och sedan välja "Start with Mongrel". Nu är det dags att skapa vår "Hello World" sida. På kommandoraden i hello biblioteket skriver du:
+
+ruby script/generate controller Say hello
+
+Öppna sedan upp filen app/controllers/say_controller.rb och ändra så att det står:
+
+def hello
+  render :text => "Hello World!"
+end
+
+Öppna sidan http://localhost:3000/say/hello i din browser. Voila! Du har nu skrivit din första Ruby on Rails applikation!
+
+*** Dokumentation och Community
+Länkar till railsdokumentation finns på www.rubyonrails.com/docs. I första hand vill jag rekommendera att du köper och laddar hem PDF versionen av railsboken "Agile Web Development with Rails", andra upplagan. API dokumentation för Ruby och Rails finns online på http://ruby-doc.org/core/ respektive http://api.rubyonrails.org/. Presentationen "Creating a weblog in 15 minutes" är väldigt inspirerande och bör inte missas (se www.rubyonrails.com/screencasts). På www.rails.se finns en aktiv svensk railscommunity med IRC-kanal och mailinglista som du är varmt välkommen till.
+
+*** Uppgradera Rails
+Rails har utvecklats i en hisnande takt och det är bäst att använda den senaste versionen (för närvarande 1.2.2). Uppgradera Rails med följande kommando (som sudo eller root på Unix):
+
+gem update rails --include-dependencies
+
+*** En riktig applikation
+Under artikelserien kommer vi att bygga en applikation som täcker vanliga funktioner såsom inloggning, administration av användare, sökning, och taggning m.m. Vi använder oss av MySQL som databas men du kan med lite konfiguration använda en annan databas som Rails stödjer (PostgreSQL, SQLite, SQLServer, Oracle, etcetera). All källkod som som vi utvecklar i den här artikeln finns att tillgå via FTP/HTTP på XXX??? som en zip fil. Ladda ner och packa upp den koden och använd den som stöd. I README filen hittar du instruktioner för att bygga applikationen och länkar till fördjupning.
+
+* Koppla in databasen
+Vi börjar med att skapa våra databaser och vår applikation. Vi kallar vår applikation för community:
+
+mysqladmin -u root create community_development
+mysqladmin -u root create community_test
+rails community
+cd community
+rake db:migrate
+
+Om det sista kommandot inte genererar ett felmeddelande så har Rails lyckats koppla upp sig mot databasen. Om du använder en annan databas än MySQL så måste du konfigurera din databaskoppling i filen config/database.yml. Anledningen till att vi skapar två databaser är att testerna som vi kommer att köra senare behöver en egen databas för testdata. Rails har tre sk environments - development, test, och production. Varje environment har sin egen databas och sin egen konfigurationsfil under config/environments. En Rails server kör alltid i en viss environment - din utvecklingsserver kör i development, testerna kör i test, och din skarpa server kör i production environment.
+
+* Registrering och inloggning
+Rails innehåller inte applikationsspecifik funktionalitet som användare och inloggning. Däremot finns det en hel uppsjö av Rails plugins att tillgå för det ändamålet. Plugins är ett sätt för railsprogrammerare att dela kod med varandra. Du hittar hela listan med plugins på http://agilewebdevelopment.com/plugins. För att hantera våra användare installerar vi ett plugin som heter acts_as_authenticated:
+
+ruby script/plugin source http://svn.techno-weenie.net/projects/plugins
+ruby script/plugin install acts_as_authenticated
+ruby script/generate authenticated user account
+rake db:migrate
+ruby script/server
+
+Du kan nu öppna http://localhost:3000/account/signup i en webbläsare och registrera dig som användare. Om allt gått vägen kommer du märkligt nog att bli omdirigerad till en dikt med titeln "In the Caboose". Njut gärna av dikten en stund, men mest vill du nog veta vart vår användare tagit vägen. Ändra index metoden i app/controllers/account_controller.rb så att den hämtar alla användare från databasen:
+
+def index
+  @users = User.find(:all)
+end
+
+Byt ut innehållet i app/views/account/index.rhtml till:
+
+<ul>
+  <% for user in @users %>
+    <li><%= user.login %></li>
+  <% end %>
+</ul>
+
+Om du nu laddar om "/account" sidan i din webbläsare så bör du se en lista med loginnamnet på den användare som du registrerade. Det är dags att stanna upp lite och reflektera över vad vi gjort. Med hjälp av script/plugin skriptet hämtade vi först plugin kod via internet och la den i biblioteket vendor/plugins. Vår plugin skapade sedan två Ruby klasser åt oss - en controller som heter AccountController och en modell som heter User. Öppna filen app/models/user.rb i din editor och kika lite på koden. Modellklasser är ansvariga för din applikations tillstånd och affärslogik. Varje modellklass ärver från railsklassen ActiveRecord::Base och har en 1-1 relation med en tabell i databasen. Userklassen kapslar in all åtkomst till users tabellen och är ansvarig för användardatats integritet. Det var kommandot "rake db:migrate" som körde skriptet db/migrate/001_create_users.rb och skapade vår users tabell. Varje kolumn i users tabellen ger automatiskt upphov till ett attribut i User klassen.
+
+Controller klassen hittar du i filen app/controllers/account_controller.rb. Det är controller klasserna som orkestrerar en railsapplikation. De tar emot HTTP requests från webbläsaren, interagerar med databasen via modellklasser, och skickar tillbaka ett svar genom att visa en HTML view. Vad du ser i AccountController är fyra metoder - index, login, signup, och logout. Varje publik metod i en controller kallas för en action och den svarar på HTTP requests på en viss URL. Enklare uttryckt svarar en actionmetod ofta mot en sida i din applikation. Om du kollar på URL:en för signup sidan (/account/signup) så är första delen namnet på vår account controller och andra delen namnet på en action - signup metoden. HTML vyerna som hör till respektive action ligger under app/views/account och du kan se att de har ändelsen rhtml. De innehåller en blandning av HTML och Ruby kod, så kallad Embedded Ruby (ERb), och de fungerar enligt samma princip som PHP och ASP sidor. Ruby kod vars resultat ska skrivas ut på sidan placeras inom "<%= %>"-tecken och kod som ska exekveras men inte skrivas ut inom "<% %>"-tecken. Alla instansvariabler i dina actions, dvs. variabler som börjar med ett @-tecken, är tillgängliga i dina vyer.
+
+Du har kanske lagt märke till att våra sidor inte är giltig HTML - de saknar bland annat html och body taggar. För att råda bot på det skapar vi en layout i filen app/views/layouts/application.rhtml. Du kopierar enklast den filen från motsvarande fil i exempelkoden. Layouter innehåller delar av ditt användargränssnitt som alla sidor har gemensamt, såsom header, footer, och menyer. Det är kommandot yield i layouten som skriver ut själva innehållet på sidan. Med layouten på plats kan du nu experimentera lite med att logga in, logga ut, och registrera användare.
+
+Vad som är särskilt hedervärt med den plugin som vi installerat är att den givit oss ett antal automatiserade tester. Vi exekverar testerna med kommandot rake:
+
+rake
+
+Resultatet bör vara något i stil med "0 failures, 0 errors". De tester vi exekverade ligger i filerna test/unit/user_test.rb och test/functional/account_controller_test.rb. De testar vår User modell respective vår AccountController. För att försäkra oss om att testerna fungerar kommenterar vi ut en rad i app/models/user.rb:
+
+# before_save :encrypt_password
+
+Om du kör testerna med rake nu bör du få ett felmeddelande eftersom krypteringen av passwords är borta. Kommentera in raden igen och testerna går igenom. På liknande sätt kan du laborera med att kommentera ut en rad i login metoden i app/controllers/account_controller.rb:
+
+# redirect_back_or_default(:controller => '/account', :action => 'index')
+
+Se till att testerna passerar utan fel igen. Med dessa fina tester i ryggen kan vi tryggt gå vidare. Eller förresten, innan vi går vidare kan vi göra vår "/account/index" sida till hemsida med följande rad i config/routes.rb:
+
+map.connect '', :controller => "account"
+
+Om du tar bort filen public/index.html (Rails välkomstsida) så är vår applikation nu tillgänglig på http://localhost:3000/.
+
+* Administration av användare
+För att ge vår applikation lite mer kött på benen ska vi lägga till några attribut till vår User klass. Att lägga till attribut svarar mot att lägga till nya kolumner i databasen vilket vi gör med en migration:
+
+ruby script/generate migration add_user_attributes
+
+Vi listar de kolumner vi är intresserade av i filen db/migrate/002_add_user_attributes.rb:
+
+def self.up
+  add_column :users, :phone, :string
+  add_column :users, :bio, :text
+  add_column :users, :website, :string
+  add_column :users, :address, :text
+  add_column :users, :admin, :boolean
+  add_column :users, :image, :string
+end
+
+Vi skapar sedan de nya kolumnerna med rake:
+
+rake db:migrate
+
+Vi behöver ett admingränssnitt där vi kan hålla reda på våra användare. För det ändamålet använder vi Rails kodgenerator igen:
+
+ruby script/generate scaffold User 'admin/users'
+
+Om du nu går till http://localhost:3000/admin/users så ser du ett sk CRUD-interface (Create, Read, Update, Delete) för användare. Som du ser visas krypterade passwords vilket inte är önskvärt. Dessutom går det inte att lägga till en användare utan att man anger ett krypterat password - inte speciellt användarvänligt. Låt oss rätta till dessa skavanker. Lägg till följande metod till User klassen i app/models/user.rb:
+
+def self.content_columns
+  super.select { |c| c.name =~ /(login|email|created_at|phone|bio|website|address|admin)/ }
+end
+
+Ta bort crypted_password, salt, created_at, updated_at, remember_token, och remember_token_expieres_at från app/views/admin/users/_form.rhtml. Byt ut koden för Admin select boxen till:
+
+<%= select "user", "admin", [false, true] %>
+
+Lägg till password till formuläret som skapar en ny användare i app/views/admin/users/new.rhtml:
+
+<p><label for="password">Password</label><br/>
+<%= password_field :user, :password %></p>
+
+<p><label for="password_confirmation">Confirm Password</label><br/>
+<%= password_field :user, :password_confirmation %></p>
+
+Efter dessa ändringar kan du testa att skapa, editera, och ta bort användare. Det är dags att köra testerna igen:
+
+rake
+
+Oops. Vi får ett felmeddelande om en "fixture with name 'first'". Ändra rad 15 i test/functional/admin/users_controller_test.rb till:
+
+@first_id = users(:quentin).id
+
+Varför ändrar vi till :quentin här? Vi har två testanvändare i filen test/fixtures/users.yml - "quentin", och "aaron", men ingen som heter "first" som testet antog. Om vi kör testerna igen får vi ett annat felmeddelande. Det visar sig att testet inte skickar med något data när det försöker skapa en användare. Ändra rad 55 i test/functional/admin/users_controller_test.rb till:
+
+post :create, :user => {
+  :login => "Joe user",
+  :email => "joe@user.com",
+  :password => '1234',
+  :password_confirmation => '1234'
+}
+
+Nu bör testerna passera igen. Men vad täcker testerna egentligen? Kasta ett exception på rad 24, först i metoden create i app/controllers/admin/users_controller.rb:
+
+raise "this should break the tests"
+
+Det går nu inte längre att skapa en användare och testerna kommer att signalera detta. Du kan ta bort raden igen och vi är redo för nästa steg.
+
+* Autenticering och auktorisering
+Tanken är att det bara är administratorer, dvs. användare som har admin-flaggan satt till true, som ska kunna komma åt admingränssnittet. Låt oss skriva ett test som prövar om så är fallet. Först lägger vi till en test användare som har admin-flaggan satt till true. Kika på (eller kopiera) filen test/fixtures/users.yml från exempelkoden för att se hur du gör det. Vi loggar sedan in vår admin användare genom att lägga till honom i sessionen, sist i setup metoden i test/functional/admin/users_controller_test.rb:
+
+@request.session[:user] = users(:admin)
+
+Sedan lägger vi till en metod som loggar in quentin som inte är admin, och sedan går till index sidan i admingränssnittet. Vad som då bör hända är en redirect till login sidan:
+
+def test_only_admin_access
+  @request.session[:user] = users(:quentin)
+  get :index
+  assert_redirected_to :controller => 'account', :action => 'login'
+end
+
+Om vi nu kör testerna med rake så kommer det nya testet att misslyckas. Vi behöver alltså begränsa åtkomsten till admingränssnittet så att vi får den redirect vi vill ha. Först, för att vår users controller ska få tillgång till autenticeringsmetoderna från den plugin vi installerade måste vi flytta följande två rader från app/controllers/account_controller.rb till app/controllers/application.rb:
+
+include AuthenticatedSystem
+before_filter :login_from_cookie
+
+Sen lägger vi till ett filter som kräver inloggning, samt stipulerar att bara adminanvändare har åtkomst till vår UsersController (i app/controllers/admin/users_controller.rb):
+
+class Admin::UsersController < ApplicationController
+  before_filter :login_required
+
+  ... ett antal action metoder här ...
+ 
+  protected
+  def authorized?
+    current_user.admin?
+  end
+
+  def access_denied
+    flash[:notice] = "You must be logged in as an admin to access the admin interface"
+    redirect_to :controller => '/account', :action => 'login'  
+  end
+end
+
+Om du nu kör testerna igen med rake så bör de gå igenom. Utför även testet manuellt i din webbläsare. Nu kan det vara så illa att du inte har någon användare som är administrator så att du så att säga stängt dig själv ute från admingränssnittet. Misströsta inte, vi kan nämligen manipulera alla användare på Rails kommandorad:
+
+ruby script/console
+u = User.find_by_login("login_på_din_användare")
+u.admin = true
+u.save!
+exit
+
+* Uppladdning av fotografier
+Ok, nu har vi inloggning, ett admingränssnitt för användare, och en massa fina tester borde vi vara nöjda och glada. Vår applikation är dock fortfarande en smula tråkig kan man tycka, så vi ska försöka piffa upp den lite med fotografier. Det finns ett plugin som heter file_column som vi installerar för ändamålet:
+
+ruby script/plugin install http://opensvn.csie.org/rails_file_column/plugins/file_column/trunk
+
+Byt sedan namn på biblioteket vendor/plugins/trunk till vendor/plugins/file_column. För att kunna skala ner fotografier som användare laddar upp till thumbnails kommer vi att använda ImageMagick och RMagick. Först måste du installera ImageMagick om du inte redan har det. Följ instruktionerna från http://rmagick.rubyforge.org. Du kan sedan installera RMagick (som sudo eller root på Unix):
+
+gem install rmagick
+
+Om du använder InstantRails på Windows är det bäst om du installerar ImageMagick och RMagick med hjälp av instruktionerna här: http://rmagick.rubyforge.org/install-faq.html#win. När du installerat ImageMagick installerar du RMagick genom att skriva "gem install <sökväg_till_rmagick_gem_filen_som_du_laddade_ner>". Jag hade själv problem med denna installation på Windows XP men det fungerade efter en reboot. Om du inte lyckas installera RMagick så kan du ändå ladda upp filer, men de kommer inte att skalas om till thumbnails tyvärr.
+
+Vi har redan en kolumn i users tabellen som heter image. Nu behöver vi bara deklarera i User klassen att den kolumnen representerar en bildfil. Lägg till följande i app/models/user.rb (ta bort :magick argumentet om du inte har RMagick installerat):
+
+file_column :image,
+  :magick => { :versions => { "thumb" => "90x90", "medium" => "640x480>" } }
+
+Sen måste vi se till att vi får en widget för filuppladding i admingränssnittet. Ändra i app/views/admin/users/_form.rhtml så att det står:
+
+<p><label for="user_image">Image</label><br/>
+<%= file_column_field 'user', 'image'  %></p>
+<%= render :partial => "image", :locals => {:user => @user} %></p>
+
+Vi måste se till att formulären för att skapa och editera användare är multipart, dvs. stöder filuppladdningar:
+
+# I app/views/admin/users/edit.rhtml:
+<% form_tag({:action => 'update', :id => @user}, {:multipart => true}) do %>
+
+# I app/views/admin/users/new.rhtml:
+<% form_tag({:action => 'create'}, {:multipart => true}) do %>
+
+På sidan som visar en användare lägger vi till bilden längst upp (i filen app/views/admin/users/show.rhtml):
+
+<%= render :partial => "image", :locals => {:user => @user} %>
+
+Vi skapar en sk partial template i en ny fil app/views/admin/users/_image.rhtml med följande innehåll (ta bort :subdir argumenten om RMagick inte är installerat):
+
+<% if !user.image.blank? %>
+  <p>
+    <%= link_to(image_tag(url_for_file_column(user, "image", :subdir => "thumb")),
+              url_for_file_column(user, "image", :subdir => "medium")) %>
+  </p>
+<% end %>
+
+Partials i Rails är templates som inkluderas i andra templates och kan återanvändas på många sidor. Filnamnet på partials börjar alltid med underscore. På sidan som listar användare lägger vi till en tom table header och en table data cell med en thumbnail (i app/views/admin/users/list.rhtml):
+
+<th>&nbsp;</th>
+...
+<td>
+  <%= render :partial => "image", :locals => {:user => user} %>
+</td>
+
+Om du behöver hjälp med dessa ändringar kan du använda dig av filerna från exempelkoden. Starta slutligen om servern och "go crazy" med att ladda upp fotografier för dina användare.
+
+Det var allt för den här gången. Jag hoppas att du har fått mersmak för Rails! I kommande nummer går vi vidare med sökning och taggning och mycket annat smått och gott.

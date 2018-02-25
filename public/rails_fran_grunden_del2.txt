@@ -1,0 +1,803 @@
+Ruby on Rails från grunden - del 2
+
+Det här är den andra delen av tre i en artikelserie som guidar dig genom webbramverket Ruby on Rails. Vi bygger vidare på community applikationen från första delen och lägger till en gästbok med RSS, sökning, och taggning. Vi kommer även att visa hur man bygger Ajax funktionalitet med Ruby on Rails.
+
+###########################################################
+#
+# Exempelkod och screencast
+#
+###########################################################
+
+För att få det mesta ut av den här artikeln bör du ha Ruby on Rails installerat samt ladda ner koden från första delen i artikelserien från www.datormagazin.se. Tillsammans med koden finner du en README fil med detaljerade instruktioner. Du kan också ta hjälp av den screencast (video) där jag demonstrerar hur jag bygger applikationen.
+
+###########################################################
+#
+# Repetition och teori
+#
+###########################################################
+
+Ruby är ett objektorienterat och dynamiskt programmeringsspråk från Japan med en koncis men läsbar syntax. Ruby on Rails (Rails, kort och gott) är ett webbramverk som härstammar från Basecamp - en web2.0 site med en projektportal för små team. Både Ruby och Rails är open source och utvecklas av en aktiv och allt större community av programmerare.
+
+I den första delen påbörjade vi vår community applikation med att implementera registrering, inloggning, administration av användare, samt uppladdning av fotografier. Det var tack vare två railstillägg (plugins) och Rails kodgenerator (den så kallade scaffold generatorn) som vi kunde täcka relativt mycket funktionalitet utan att behöva programmera särskilt mycket. Med hjälp av de automatiserade tester som är integrerade i Rails förvissade vi oss om att den genererade koden var intakt även efter att vi gjort ändringar i den.
+
+Rails är uppbyggt enligt en MVC (Model, View, Controller) arkitektur. Modelldelen av MVC representeras av ett antal Ruby klasser under biblioteket app/models. Varje modellklass ärver från klassen ActiveRecord::Base och dess data lagras i en databastabell vars namn är modelklassens namn i pluralform. Hittills har vi bara en modellklass i vår applikation, nämligen klassen User. Varje User objekt lagras i en rad i userstabellen i databasen. Varje kolumn i userstabellen ger automatiskt upphov till ett attribut i userklassen. Vår userklass ärver ett antal metoder från ActiveRecord::Base som sköter kopplingen mot databasen. De viktigaste av dessa är new, save, find, update_attributes, och destroy. Man kan säga att metoderna representerar ett objekts livscykel och de svarar mot den CRUD (Create, Read, Update, Delete) arkitektur som Rails följer.
+
+Controllerdelen i MVC representeras av rubyklasser under app/controllers. Varje controllerklass ärver från klassen ActionController::Base och varje publik metod kallas för en action. En action anropas av Rails när en request till en viss URL kommer in. En actionmetod interagerar typiskt sett med databasen via en eller flera modellklasser. Sedan skickas ett svar tillbaka med hjälp av en vy. Vyer i Rails ligger under app/views och är HTML templates med inbäddad rubykod. De har ändelsen rhtml och fungerar i princip på samma sätt som PHP eller ASP. Konventionen är att en vy har samma namn som motsvarande action metod men detta kan enkelt överridas. Instansvariabler i Ruby börjar med ett @-tecken och de instansvariabler som du initialiserar i din action kommer att vara tillgängliga i din vy.
+
+Ett bra sätt att göra teorin som vi gått igenom begriplig är att studera koden i vår Admin::UsersController i filen app/controllers/admin/users_controller.rb. Det är denna controller som hanterar vårt admingränssnitt för användare. När du startat din server är admingränssnittet tillgängligt på URL:en http://localhost:3000/admin/users. Vi förutsätter här att du har registerat en användare och gjort denna användare till administrator. I instruktionerna i README filen kan du se hur du gör detta. Som du ser har vår controller åtta action metoder: index, list, show, new, create, edit, update, och destroy. Metoder i Ruby definieras med nyckelordet "def" och avslutas med nyckelordet "end". Standardformatet för URL:er i Rails är :controller/:action/:id men som vi kommer att se senare kan formatet lätt ändras efter behov. När en request kommer in till "/admin/users" kommer Rails att instansiera vår Admin::UsersController och eftersom ingen action är angiven kommer indexmetoden att anropas. Om du öppnar upp "/admin/users/show/1" i din webbläsare så är det showmetoden som anropas och :id parametern kommer att vara satt till 1:
+
+  def show
+    @user = User.find(params[:id])
+  end
+
+I showmetoden använder vi metoden ActiveRecord::Base.find som hämtar den rad från users tabellen som har id 1 och returnerar ett userobjekt. För att userobjektet ska vara tillgängligt i vyn använder vi instansvariablen @user. Eftersom showmetoden avslutas utan att vi talat om för Rails vilken vy som ska användas kommer Rails att söka efter en fil under app/views/admin/users med samma namn som den action som anropats och ändelsen rhtml. Om vi hade velat rendrera en annan vy hade vi skrivit:
+
+  def show
+    @user = User.find(params[:id])
+    render :action = 'name_of_other_view'
+  end
+
+Metoden ActionController::Base.render (se http://api.rubyonrails.com/) har många andra möjligeheter - du kan till exempel ange den text som ska returneras inline eller rendrera ingenting och sätta en viss statuskod. Om vi nu kollar på metoden create istället så anropas den när formuläret för att lägga till en användare submittas. Om användardatat är giltigt så gör vi en redirect till sidan för att lista användare. Vi visar också ett bekräftelsemeddelande med hjälp av flash variabeln. Om användaren däremot inte kunde sparas så visar vi formuläret igen. Klicka gärna runt lite i admingränssnittet och se om du kan hänga med i hur de olika actionmetoderna fungerar. I exempelkoden har jag lagt till ett antal kommentarer till controllern för att förklara vad olika rader gör. I serverns loggfil log/development.log kan du få mycket användbar information om vilken action som anropas, om det är en GET eller POST request, vilka parametrar som skickas med, vilka SQL anrop som görs, vilka vyer som rendreras, samt hur lång tid varje request tog.
+
+###########################################################
+#
+# Hemsida och profilsida
+#
+###########################################################
+
+Den första funktionen som vi ska lägga till i vår applikation är en gästbok. Innan vi är redo att göra det behöver vi dock hyfsa till hemsidan så att den listar användare med bild och länk (i filen app/view/account/index.rhtml):
+
+<table>
+  <tr>
+    <th></th>
+    <th>Login</th>
+    <th>Bio</th>
+  </tr>
+  
+<% for user in @users %>
+  <tr>
+    <td><%= render :partial => "/admin/users/image", :locals => {:user => user} %></td>
+    <td><%= link_to user.login, :controller => 'users', :action => 'show', :id => user %></td>
+    <td><%= truncate user.bio, 50 %></td>
+  </tr>
+<% end %>
+</table>
+
+Vi skapar en ny controller som vi kommer att använda till att visa och editera användare:
+
+ruby script/generate controller users
+
+Öppna nu http://localhost:3000 i din webbläsare och klicka på första länken så att du kommer till "/users/show/1". Notera att Rails hjälper oss här med ett felmeddelande i stil med "unknown action show". Vi lägger till en ny action i app/users/users_controller.rb:
+
+def show
+  @user = User.find(params[:id])
+end
+
+Slutligen skapar vi vår vy i den nya filen app/views/users/show.rhtml:
+
+<%= render :partial => "/admin/users/image", :locals => {:user => @user} %>
+
+<p>
+  <b>Login:</b> <%= @user.login %>
+</p>
+
+<p>
+  <b>Bio:</b> <%= @user.bio %>
+</p>
+
+Ladda om sidan så får du upp din användare. Om du tänker tillbaka på vad vi gjorde i del 1 så byggde vi redan då en sida i admingränssnittet för att visa en användare i app/views/admin/users/show.rhtml. Det ligger nära till hands att försöka återanvända den sidan. Troligtvis vill vi dock ge administratörer och vanliga användare olika vyer så vi låter sidorna vara separata så länge. För att undvika duplicering mellan sidor som är snarlika kan man använda sig av partials. Ett exempel på detta är raden som innehåller "render :partial" ovan som vi använder för att visa användarens bild. Partials är inget annat än vanliga templates med ändelsen rhtml vars filnamn börjar med ett understreck.
+
+###########################################################
+#
+# URLer och Routes
+#
+###########################################################
+
+I det här avsnittet ska vi stifta lite närmare bekantskap med hur Rails hanterar URL:er. Vi går tillbaka till show metoden i app/users/users_controller.rb och kastar följande exception:
+
+raise params.inspect
+
+Om du laddar om sidan ser du att params objektet är en Hash innehållande tre nycklar - controller, action, och id. Vi ser att värdena i hashen svarar direkt mot URL:en "/users/show/1". Anledningen till att params hashen initialiseras som den gör är följande rad i filen config/routes.rb:
+
+map.connect ':controller/:action/:id.:format'
+
+De routes som är definierade i config/routes.rb bestämmer vilka URL:er din applikation ska svara på. För varje URL bestämmer de också vilken action som ska anropas och med vilka parametrar. Varje namn på raden ovan som börjar med ett kolon svarar mot en nyckel i params hashen. Variabeln ":format" används för att ange på vilket format svaret ska skickas på, tex XML eller RSS. Om du ändrar URLen till "/users/show/1.xml" och laddar om sidan kommer du att se att format parametern nu är satt till xml. Vi har dock inte användning för format parametern just nu så vi lämnar den därhän.
+
+Vi kan ändra URL:en för vår sida genom att lägga till en rad i config/routes.rb:
+
+map.user 'user/:id', :controller => 'users', :action => 'show'
+
+Vi får då en route med namnet user som ger oss tillgång till två så kallade helpermetoder. Helpermetoder är metoder som vi kan använda i våra vyer. Varje controller har en tillhörande helperfil under app/helpers där du kan definiera metoder som du behöver i controllerns vyer. Helpermetoder i filen app/helpers/application_helper.rb är tillgängliga i samtliga vyer i din applikation. För att se att vi faktiskt har fått två nya metoder lägger vi till följande rad längst upp i app/views/account/index.rhtml:
+
+<%
+  raise methods.grep(/^user/).join(", ")
+%>
+
+Om du laddar om sidan ser du metoderna user_path och user_url. Metoden user_path returnerar en sökväg av typen "/users/show/1" medans user_url ger oss en fulltständig URL såsom "http://localhost:3000/users/show/1". Vi kan nu använda vår nya URL i länken i app/views/account/index.rhtml:
+
+<td><%= link_to user.login, user_path(user) %></td>
+
+Du kan nu navigera till den nya URL:en "/user/1". För att få mer läsbara URLer kan vi låta URLen innehålla användarnamn istället för id. Vi skriver om show metoden i app/controllers/account_controller.rb:
+
+  def show
+    if params[:id] =~ /^\d+$/
+      @user = User.find(params[:id]) rescue ActiveRecord::RecordNotFound
+    end
+    @user = User.find_by_login(params[:id]) if !@user
+  end
+
+Om id:et från URLen är numeriskt så slår vi upp användaren på id. Om detta misslyckas använder vi uppslagning på användarnamn istället. Vi kan nu ändra länken på förstasidan så att den använder användarnamn istället för id:
+
+<td><%= link_to user.login, user_path(:id => user.login) %></td>
+
+Vi har här bara skrapat på ytan av vad man kan göra med Rails routes och API dokumentationen erbjuder utmärkta möjligheter till fördjupning (se http://api.rubyonrails.com/classes/ActionController/Routing.html).
+
+###########################################################
+#
+# Validering av användardata
+#
+###########################################################
+
+Kanske är det inte önskvärt med användarnamn bara bestående av siffror. Antag att vi har ett krav på oss att användarnamn ska innehålla minst en bokstav och i övrigt bara bestå av siffror, bindestreck, understreck, och mellanslag. Vi kan uttrycka detta krav i form av tre tester i test/unit/user_test.rb:
+
+def test_should_not_allow_invalid_chars
+  assert_no_difference User, :count do
+    u = create_user(:login => "peter $")
+    assert u.errors.on(:login)
+  end    
+end
+
+def test_should_not_allow_login_with_only_digits
+  assert_no_difference User, :count do
+    u = create_user(:login => "123")
+    assert u.errors.on(:login)
+  end    
+end
+
+def test_should_allow_login_with_valid_chars
+  assert_difference User, :count do
+    u = create_user(:login => "123 peter 123-_")
+  end    
+end
+
+Om du kör testerna med kommandot "rake" på kommandoraden bör du få två failures. Vi lägger till följande rad i app/models/user.rb och kör testerna igen:
+
+validates_format_of :login, :with => /^[a-zA-Z_0-9 -]*[a-zA-Z][a-zA-Z_0-9 -]*$/
+
+Om du får varningar om att "require_gem is obsolete" när du kör testerna så testa att uppdatera Rails med följande kommandon:
+
+rake rails:freeze:gems
+rake rails:update
+
+Metoden validates_format_of är en av de valideringsmetoder du kan använda i dina modellklasser, andra vanliga valideringsmetoder är validates_presence_of, validates_length_of, och validates_uniqueness_of. Du kan leta upp ActiveRecord::Validations::ClassMethods på http://api.rubyonrails.com för att få en fullständig lista. Vad vi använder ovan är ett reguljärt uttryck som matchar början på en rad, noll eller fler av våra tillåtna tecken, sedan en bokstav, sen återigen noll eller fler tillåtna tecken, och slutligen en radbrytning. Om någon anger ett användarnamn som inte matchar det tillåtna formatet kommer användaren inte att godkännas och därmed inte att sparas i databasen.
+
+###########################################################
+#
+# CSS och rubriker
+#
+###########################################################
+
+För att våra sidor ska bli lite trevligare att se på kopierar vi filen public/stylesheets/application.css från exempelkoden till biblioteket public/stylesheets. Innan vi går vidare ska vi också fixa till rubrikerna på våra sidor och lägga till en länk till hemsidan för att underlätta navigeringen. Ändra i app/layouts/application.rhtml:
+
+<%
+  @page_title ||= params[:action]
+%>
+
+...
+  <title>Community: <%= @page_title %></title>
+  <%= stylesheet_link_tag "application" %>
+...
+
+...
+    <% if logged_in? %>
+      Logged in as: 
+      <%= current_user.login %>
+      [
+        <%= link_to "home", '/' %> |
+...
+        
+  <h1><%= @page_title %></h1>
+...
+  <div id="content" style="position: relative">
+    <%= yield %>    
+  </div>
+
+Ange en rubrik längst upp i app/views/users/show.rhtml:
+
+<%
+  @page_title = @user.login
+%>
+
+Ange även rubrik i app/views/account/index.rhtml:
+
+<%
+  @page_title = "Community Home"
+%>
+
+###########################################################
+#
+# Gästboken
+#
+###########################################################
+
+Vilken community har inte en gästbok? Självklart ska inte vi vara sämre. Enkelt uttryckt ska vi alltså göra det möjligt för våra användare att lämna kommentarer på andra användares profilsidor. Kommentarerna kommer att representeras av en modell som heter Comment och en motsvarande tabell som heter comments i databasen. Som vanligt använder vi Rails kodgenerator på kommandoraden för att få en flygande start:
+
+ruby script/generate model Comment
+
+Vi anger vilka kolumner comments tabellen ska ha i filen db/migrate/003_create_comments.rb:
+
+create_table :comments do |t|
+  t.column :body, :text
+  t.column :user_id, :integer
+  t.column :creation_user_id, :integer
+  t.column :created_at, :datetime
+  t.column :updated_at, :datetime
+end
+
+Vi exekverar vår nya migration med kommandot "rake db:migrate". Kolumnerna created_at och updated_at anger när en kommentar skapats respektive senast uppdaterats och de kommer att fyllas i automatiskt av Rails. Vi lägger till tre rader till app/models/comment.rb:
+
+belongs_to :user
+belongs_to :creation_user, :class_name => 'User', :foreign_key => 'creation_user_id'
+validates_presence_of :user_id, :body, :creation_user_id
+
+De första två raderna talar om för Rails att kolumnenerna user_id och creation_user_id är referenser till id:n i users tabellen. På andra raden deklarerar vi vilka kolumner som måste vara ifyllda för att en kommentar ska vara giltig. Vi talar om för Rails att en användare kan ha många kommentarer med följande association i app/models/user.rb:
+
+has_many :comments
+
+Tack vare namnkonventioner vet Rails att när den gör en SQL join mellan users och comments tabellerna så ska den använda user_id kolumnen i comments tabellen. Vi är nu redo att skapa ett test som illustrerar hur man kommenterar på en användare i test/unit/user_test.rb:
+
+def test_should_be_commentable
+  user = users(:quentin)
+  assert_difference Comment, :count do
+    assert_difference user.comments, :size do
+      user.comments << Comment.create(:body => "Hey, quentin, interesting bio",
+        :creation_user_id => users(:aaron).id)
+    end
+  end
+end
+
+Vi skapar här en kommentar och associerar den med en användare med "<<" operatorn. Rails låter oss alltså använda den vanliga syntaxen för att lägga till ett element till en lista (en Array) i Ruby. Testet kontrollerar att antalet kommentarer både för användaren, och i databasen totalt, har ökat med 1. Vi kör alla testerna igen med kommandot "rake". 
+
+Vi är nu redo att gå vidare till användargränssnittet för gästboken. Vi skapar först en ny controller som hanterar kommentarer:
+
+ruby script/generate controller comments
+
+Vi inkluderar sedan kommentarerna med hjälp av en partial längst ner i app/views/users/show.rhtml:
+
+<%= render :partial => "/comments/list", :locals => {:user => @user} %>
+
+Vi skapar filen app/views/comments/_list.rhtml som visar alla kommentarer för en användare:
+
+<h3 class="comment_header"><a name="comments">Comments</a></h3>
+
+<div id="comment_list">
+  <%= render :partial => 'comments/comment', :collection => user.comments %>
+</div>
+
+<h4>Leave a Comment</h4>
+
+<%= form_tag :controller => "comments", :action => "create", :id => user %>
+
+<div>
+	<label for="comment_body">Comment</label><br />
+
+	<%= text_area "comment", "body", :cols => 80 %>
+</div>
+
+<div style="margin-top: 10px">
+<%= submit_tag 'Submit' %>
+</div>
+
+Vi använder ytterligare en partial för att visa varje enskild kommentar i app/views/comments/_comment.rhtml:
+
+<div class="comment">
+<p>
+	<%= link_to("<b>#{h(comment.creation_user.login)}</b>", user_path(comment.creation_user)) %>
+	said <%= time_ago_in_words comment.created_at %> ago:
+</p>
+
+<div>
+<%= simple_format(h(comment.body)) %>
+</div>
+
+<span class="comment_separator">
+--------------------------------------------------------------------------------
+</span>
+</div>
+
+Du bör nu kunna se formuläret i din webbläsare om du går till profilsidan. För att vi ska kunna submitta formuläret lägger vi till en ny action i app/controllers/comments_controller.rb:
+
+def create
+  @user = User.find(params[:id])
+  @comment = @user.comments.build(params[:comment])
+  @comment.creation_user_id = current_user.id
+
+  if @comment.save
+    flash[:notice] = "Comment posted"
+  else
+    flash[:error] = "Comment body can't be blank"
+  end
+
+  redirect_to :controller => 'users', :action => 'show', :id => @user.id
+end
+
+Vi skapar först ett kommentarsobjekt och försöker sedan spara ner objektet till databasen. Om vi inte kunde spara kommentaren sätter vi ett felmeddelande i flash variabeln som kommer att visas på nästa sida. Flash variabeln är ett Hash objekt som ligger i sessionen och som används flitigt i Rails för att sätta ett meddelande i en request som kommer att visas upp i nästa. Vi tar bort flashmeddelandet som vi i hade i layouten (app/layouts/application.rhtml) ovanför rubriken och lägger till följande två meddelanden under rubriken istället:
+
+<% if flash[:notice] %><div id="flash_notice"><%= flash[:notice] %></div><% end %>
+<% if flash[:error] %><div id="flash_error"><%= flash[:error] %></div><% end %>
+
+Testa nu att skriva några fyndiga kommentarer. Om du försöker submitta en tom kommentar bör du få ett felmeddelande.
+
+###########################################################
+#
+# RSS feed för gästboken
+#
+###########################################################
+
+RSS blir allt populärare som ett sätt att hålla sig uppdaterad på webloggar, nyheter, jobb, och mycket annat. Vi ska nu skapa en RSS feed för vår gästbok och vi lägger därför till en action i vår comments controller (i app/controllers/comments_controller.rb):
+
+  def rss
+    @user = User.find(params[:id])
+    @comments = @user.comments.find(:all, 
+      :order => "comments.created_at DESC", :limit => 10, :include => [:user, :creation_user])
+    @server_url = request.protocol + request.env['HTTP_HOST']
+    @rss_url = @server_url + request.request_uri
+    render :layout => false
+  end
+
+Vi skapar en ny vy i app/views/comments/rss.rxml:
+
+xml.instruct!
+xml.rss "version" => "2.0", "xmlns:dc" => "http://purl.org/dc/elements/1.1/" do
+  xml.channel do
+    xml.title "Recent comments for #{@user.login}"
+    xml.link @rss_url
+    xml.pubDate CGI.rfc1123_date(@comments.first.updated_at)
+    xml.description ""
+    @comments.each do |comment|
+      xml.item do
+        xml.title "Comment by #{comment.creation_user.login} #{time_ago_in_words comment.created_at} ago"
+        xml.link @server_url + comment_url(comment)
+        xml.description h(comment.body)
+        xml.pubDate CGI.rfc1123_date(comment.updated_at)
+        xml.guid @server_url + comment_url(comment)
+        xml.author h(comment.creation_user.login)
+      end
+    end
+  end
+end
+
+Slutligen lägger vi till en RSS länk på profilsidan som man alltså kan använda för att hålla sig uppdaterad på inlägg i en viss gästbok (i app/views/users/show):
+
+<p>
+<%= link_to "Comments RSS", :controller => "comments", :action => "rss", :id => user %>
+</p>
+
+Denna ändring konkluderar vår RSS feed.
+
+###########################################################
+#
+# Administration av kommentarer
+#
+###########################################################
+
+Administratörerna av vår community vill troligtvis kunna se och moderera alla kommentarer i systemet. Tack vara Rails scaffold generator är denna uppgift en lätt match för oss:
+
+ruby script/generate scaffold Comment 'admin/comments'
+
+Om du går till "/admin/comments" bör du nu se en lista på alla kommentarer och det finns även möjlighet att ta bort eller editera dem. Eftersom vi inte är intresserade av att editera kolumnerna created_at och updated_at tar vi bort dem från filen app/views/admin/comments/_form.rhtml. När vi kör testerna igen med rake får vi de fel som vi stött på tidigare om "no such fixture first". Vi ersätter innehållet i test/fixtures/comments.yml med:
+
+first:
+  id: 1
+  body: hi, nice bio!
+  creation_user_id: 2
+  user_id: 1
+
+Vi ser sedan till att en administratör är inloggad genom att lägga till två rader i test/functional/admin/comments_controller_test.rb:
+
+fixtures :users, :comments
+
+...
+
+def setup
+  ...
+  @request.session[:user] = users(:admin)
+end
+
+Det visar sig även efter denna ändring att testet för att skapa kommentarer i användargränssnittet misslyckas. Vid närmare eftertanke har vi inte behov av att skapa kommentarer i admingränssnittet, så vi kan ta bort den funktionaliteten och testet. Vi tar alltså bort test_create och test_new metoderna från comments_controller_test.rb samt motsvarande new och create metoder från comments_controller.rb. Ta även bort "New comment" länken från app/views/admin/comments/list.rhtml samt filen app/views/admin/comments/new.rhtml. Nu bör testerna gå igenom igen.
+
+I del 1 begränsade vi åtkomsten till vår Admin::UsersController så att bara administratörer kunde komma åt den. Naturligtvis vill vi att den begränsningen även ska gälla för vår comments controller under admin. Ett enkelt sätt att åstadkomma detta är att skapa en basecontroller som alla våra admin controllers ärver ifrån:
+
+ruby script/generate controller 'admin/base'
+
+Vi flytta först anropet before_filter och metoderna authorized? och access_denied från users_controller.rb till  base_controller.rb. Vi ändrar sedan våra users och comments controllers under admin så att de ärver från Admin::BaseController. Exempelvis i app/controllers/admin/users_controller.rb ändrar vi till:
+
+class Admin::UsersController < Admin::BaseController
+
+Nu är hela admingränssnittet återigen skyddat från otillbörig åtkomst. Kör testerna med rake för att bekräfta detta. 
+
+För att underlätta navigeringen är det nu läge att skapa en hemsida för admingränssnittet. Vi genererar en controller med en index action för det syftet:
+
+ruby script/generate controller 'admin/general' index
+
+Ändra så att general controllern också ärver från från Admin::BaseController:
+
+class Admin::GeneralController < Admin::BaseController
+
+En enkel länklista för tjäna som startsida i app/views/admin/general/index.rhtml:
+
+<%
+  @page_title = "Administration"
+%>
+
+<ul>
+  <li><%= link_to "Users", :controller => "admin/users" %></li>
+  <li><%= link_to "Comments", :controller => "admin/comments" %></li>
+</ul>
+
+Vi vill att admingränssnittet ska vara tillgängligt på URL:en "/admin" så vi lägger till en route i config/routes.rb:
+
+map.admin "admin", :controller => 'admin/general'
+
+Vi ändrar slutligen adminlänken i app/layouts/application.rhtml till:
+
+<%= link_to "admin", admin_url %>
+
+Du kan nu navigera admingränssnittet från admin länken uppe i högra hörnet.
+
+###########################################################
+#
+# En bättre gästbok med Ajax
+#
+###########################################################
+
+Ajax (Asynchronous Javascript and XML) har blivit populärt de senaste åren som ett sätt att göra webbapplikationer mer interaktiva. Ajax innebär att vi kan skicka och hämta data från en webbsida i bakgrunden utan att sidan behöver laddas om. Typiskt sett används Ajax för att lägga till, ändra, eller ta bort olika delar av en HTML sida dynamiskt och det är även möjligt att skapa flashiga effekter. Två populära JavaScript bibliotek som används för Ajax är script.aculo.us av Thomas Fuchs och Prototype av Sam Stephenson. Båda dessa utvecklare sitter även med i Rails utvecklarteam vilket kanske förklarar varför Rails har ett så väl integrerat stöd för Ajax. Integrationen går så långt att vi för de vanligaste Ajax behoven kan hålla oss till Ruby och nästan inte behöver skriva någon JavaScript alls.
+
+För att få tillgång till Ajax biblioteken måste vi inkludera dem i headern i app/layouts/application.rhtml (OBS! missa inte detta steg):
+
+  <%= javascript_include_tag :defaults %>
+
+Om vi vill posta våra kommentarer med Ajax behöver vi göra om vår form_tag i app/views/comments/_list.rhtml till en form_remote_tag:
+
+<h4>Leave a Comment <%= spinner_icon("create") %></h4>
+    <%= form_remote_tag :url => {:controller => "comments", :action => "create", :id => user},
+      :html => { :id => "comment_form"},
+      :loading => "$('spinner_create').show()",
+      :complete => "$('spinner_create').hide()" %>
+
+Spinner icon är en liten spinnande gif som visar för användaren att en Ajax request behandlas i bakgrunden. Vi kommer att använda vår spinner på flera ställen så vi lägger till en helpermetod i app/helpers/application_helper.rb:
+
+def spinner_icon(id)
+  %Q{<img class="spinner" id="spinner_#{id}" src="/images/spinner.gif" alt="Comment being processed" style="display: none" />}
+end
+
+Bilder i Rails ligger under public/images. Kopiera public/images/spinner.gif från exempelkoden till public/images. Om du nu laddar om profilsidan för en användare och kollar på källkoden i din webbläsare så ser du att vad form_remote_tag metoden genererade är ett vanligt HTML formulär som gör en HTTP request via JavaScript när det submittas:
+
+    <form action="/comments/create/1" id="comment_form" method="post" onsubmit="new Ajax.Request('/comments/create/1', {asynchronous:true, evalScripts:true, onComplete:function(request){$('spinner_create').hide()}, onLoading:function(request){$('spinner_create').show()}, parameters:Form.serialize(this)}); return false;">
+
+Om vi kollar på create metoden i comments_controller.rb så ser vi att den gör en redirect när en kommentar har skapats. Det är denna redirect som gör att sidan laddas om och det är detta vi vill undvika när vi använder Ajax. Istället för en redirect kommer vi att lägga till den nya kommentaren till listan av kommentarer på sidan. För att åstadkomma detta anropar vi render metoden med ett :update argument (i app/controllers/comments_controller.rb):
+
+    if @comment.save
+      render :update do |page|
+        page.insert_html :bottom, 'comment_list', :partial => 'comment', :object => @comment
+        page[@comment.dom_id].visual_effect :highlight
+        page['comment_form'].reset
+      end
+    else
+      render :update do |page|
+        page.alert "Could not add comment for the following reasons:\n" + 
+          @comment.errors.full_messages.map{|m| "* #{m}"}.join("\n") + 
+          "\nPlease change your input and submit the form again."
+      end
+    end
+
+Som sista argument tar render ett kodblock som avslutas med nyckelordet "end". I det kodblocket representerar page variabeln HTML sidan som vi vill uppdatera. Vi använder oss av metoden insert_html som fogar in en kommentar sist i listan, och sedan låter vi den nya kommentaren blinka till i gult med hjälp av metoden visual_effect. När man jobbar med Ajax refererar man ofta till en div tagg med ett visst id. För att vi ska kunna hänvisa till dom objektet för en kommentar innesluter vi varje kommentar i en div med kommentarens id (i app/views/comments/_comment.rhtml):
+
+<div class="comment" id="<%= comment.dom_id %>">
+... kommentar visas här ...
+</div>
+
+Notera att vi använder oss av en metod som heter dom_id. Det är det CSS id som vi använder för att identifiera kommentaren på sidan. Denna metod har inte inkluderats i Rails ännu men vi kan göra den tillgänglig genom att installera ett tillägg:
+
+ruby script/plugin install http://choonkeat.svnrepository.com/svn/rails-plugins/dashed_dom_id
+
+När du startat om servern bör nu kunna posta kommentarer med Ajax. Fascinerande, eler hur? Om kommentarerna inte fungerar så börja med att se vad som skrivs ut i logg filen i log/development.log. Det bästa sättet att debugga AJAX problem är annars att använda ett tillägg till Firefox som heter FireBug.
+
+Vi vill låta våra användare ta bort och editera kommentarer som de själva skrivit. För att göra det använder vi oss av Rails helpermetod link_to_remote och lägger till två länkar i app/views/comments/_comment.rhtml:
+
+  <% if comment.creation_user == current_user %>  
+    <%= link_to_remote "Edit", :url => {:controller => "comments", :action => "edit", :id => comment},
+      :update => comment.dom_id %> |
+    <%= link_to_remote "Delete", :url => {:controller => "comments", :action => 'destroy', :id => comment},
+      :confirm => "Are you sure you want to delete your comment?", :update => comment.dom_id %>
+  <% end %>	
+
+Låt oss kika ett ögonblick på HTML och JavaScript koden som link_to_remote genererar:
+
+    <a href="#" onclick="new Ajax.Updater('comments-2', '/comments/edit/2', {asynchronous:true, evalScripts:true}); return false;">Edit</a> |
+    <a href="#" onclick="if (confirm('Are you sure you want to delete your comment?')) { new Ajax.Updater('comments-2', '/comments/destroy/2', {asynchronous:true, evalScripts:true}); }; return false;">Delete</a>
+  
+Som du ser är det vanliga HTML länkar med ett onclick attribut som kommer att utföra en JavaScript HTTP request i bakgrunden. Notera att båda link_to_remote anropen har argumentet :update satt till comment.dom_id, dvs id:t till den div som innesluter kommentaren som vi vill editera/ta bort. Metoden link_to_remote kommer att ersätta kommentarens div med det som returneras från respektive action. Vår edit action kommer att returnera ett formulär så att kommentaren kan editeras. Vår destroy action kommer att returnera en tom sträng så att kommentaren försvinner från sidan (i app/controllers/comments_controller.rb):
+
+  def edit
+    @comment = Comment.find(params[:id])
+    render :layout => false
+  end
+  
+  def destroy
+    @comment = Comment.find(params[:id])
+    @comment.destroy
+    render :text => ''
+  end  
+
+Vår edit action har en tillhörande vy som visar formuläret i app/views/comments/edit.rhtml:
+
+<div id="<%= @comment.dom_id %>">
+<p>
+	<%= link_to("<b>#{h(@comment.creation_user.login)}</b>", user_path(@comment.creation_user)) %>
+	said <%= time_ago_in_words @comment.created_at %> ago: <%= spinner_icon('update') %>
+</p>
+
+<%= form_remote_tag :url => {:controller => "comments", :action => "update", :id => @comment}, 
+                    :html => {:id=>"comment_edit_form"},
+                    :update => "#{@comment.dom_id}",
+                    :loading => "$('spinner_update').show()",
+                    :complete => "$('spinner_update').hide()" %>
+
+<div>
+	<%= text_area "comment", "body", :rows => 7, :cols => 80 %>
+</div>
+
+<div style="margin-top: 10px">
+<%= submit_tag 'Edit' %> 
+<%= link_to_remote "Cancel", :url => {:controller => "comments", :action => "edit_cancel", :id => @comment},
+  :update => "#{@comment.dom_id}" %>
+</div>
+
+</form>
+</div>
+
+Som du ser har vår edit vy ett Ajax formulär som submittar till en update action, samt en Ajax länk som avbryter editeringen. Vi lägger till motsvarande actions (i app/controllers/comments_controller.rb):
+
+  def edit_cancel
+    @comment = Comment.find(params[:id])
+    render :partial => 'comment', :locals => {:comment => @comment}
+  end
+  
+  def update
+    @comment = Comment.find(params[:id])
+    @comment.update_attributes!(params[:comment])
+    render :partial => 'comment', :locals => {:comment => @comment}    
+  end
+
+Båda dessa actions returnerar den ursprungliga kommentaren och tar oss tillbaka till ursprungstillståndet. Vi är klara med ajaxifieringen av gästboken.
+
+###########################################################
+#
+# Sökning
+#
+###########################################################
+
+De flesta har nog upplevt hur frustrerande det är att försöka hitta runt på en webbsite som saknar en fungerande fritextsökning. Vi skyndar oss därför att lägga till en sökruta så att man kan söka bland våra användare. Vi kommer att använda oss av en sökmotor som heter Ferret. Ferret är skriven i Ruby och C och är en portering av javasökmotorn Lucene. Vi installerar Ferret tillsammans med en Rails plugin som integrerar Ferret med Rails (som sudo eller root på Unix):
+
+gem install ferret
+script/plugin install svn://projects.jkraemer.net/acts_as_ferret/tags/stable/acts_as_ferret
+
+Starta om din server så att tillägget blir tillgängligt. Vi kan nu göra vår userklass sökbar i app/models/user.rb:
+
+acts_as_ferret :fields => [:login, :email, :bio, :website, :address, :comments_string]
+
+...
+
+protected
+
+def comments_string
+  comments.map { |c| c.body }.join(" ")
+end
+
+Som ser deklarerar vi vilka attribut i userklassen som vi är intresserade av att söka i. Här har jag antagit att även en användares gästboksinlägg ska vara sökbara. Jag har därför lagt till attributet comments_string som är alla kommentarer i en gästbok samlade i en enda sträng. Vi är nu redo att lägga till en sökruta i vår layout (i app/views/layouts/application.rhtml) så att den är tillgänglig på alla sidor:
+
+<body onload="$('query').focus()">
+...
+ <div id="search_form">
+   <%= form_tag({:controller => 'account', :action => 'index'}, {:id => 'search'}) %>
+     <%= text_field_tag("q", params[:q], {:id => "query"}) %>
+
+     <%= submit_tag "Search" %>
+     <% if params[:q] %><%= link_to "Clear", "/" %><% end %>
+   </form>
+ </div>
+
+Som du ser låter vi vår sökruta submitta till hemsidan med parametern q. Vi ändrar vår index action så att om parametern q är satt så gör vi en sökning, annars hämtar vi alla användare (i app/controllers/account_controller.rb):
+
+  def index
+    if params[:q]
+      @users = User.find_by_contents(params[:q])
+    else
+      @users = User.find(:all)
+    end
+  end
+
+Se till att du har minst två användare och fyll i lite text i deras biografier. Testa sedan att söka på ett eller flera ord och kontrollera att rätt användare returneras. Då var vi klara, eller? Vänta lite. Testa att lägga till en kommentar till en användare och testa om du kan söka på användaren med ord i kommentaren. Du kommer att finna att det inte fungerar. Problemet vi behöver lösa är att när någon lägger till, tar bort, eller ändrar en kommentar i en gästbok så måste vi uppdatera sökindexet för den användaren. Sökindexet som Ferret använder skapas automatiskt första gången du gör en sökning och det ligger i filsystemet under index/development/user. Ett elegant sätt att hålla indexet uppdaterat är att använda Rails inbyggda callbacks i app/models/comment.rb:
+
+class Comment < ActiveRecord::Base
+  ...
+
+  def after_save
+    user.ferret_update
+  end
+
+  def after_destroy
+    user.ferret_update
+  end
+
+Som namnet antyder kommer after_save att anropas automatiskt av Rails direkt efter en kommentar sparats (dvs. skapats eller uppdaterats). Metoden after_destroy anropas förstås efter en kommentar tagits bort.
+
+För att indexera om dina användare kan du ta bort filerna under index/development/user. Därmed är vi klara med en första version av sökfunktionen. Ett enkelt nästa steg skulle vara att lägga till paginering så att vi kan dela upp sökresultaten på ett flertal sidor när vi har många användare. Ferret erbjuder också många sökfunktioner som vi inte talat om här. Du kan bland annat söka på olika attribut separat och göra booleanska sökningar med mera. En bra tutorial finns här: www.railsenvy.com/2007/2/19/acts-as-ferret-tutorial.
+
+###########################################################
+#
+# Taggning
+#
+###########################################################
+
+Varje web2.0 applikation med självaktning måste ha taggar i likhet med kända föregångare som Flickr.com och del.icio.us. Taggar är ett enkelt sätt att kategorisera innehåll och hjälper dina användare att hitta vad de är intresserade av. Som vanligt vänder vi oss till http://www.agilewebdevelopment.com/plugins för att se om det finns ett tillägg som kan göra jobbet åt oss. Hör och häpna, det finns ett tillägg som vi kan använda, det heter acts_as_taggable_on_steroids, och vi installerar det omgående:
+
+script/plugin install http://svn.viney.net.nz/things/rails/plugins/acts_as_taggable_on_steroids
+ruby script/generate migration add_tags
+
+Starta nu om servern. Det är visserligen inte omnämnt i tilläggets README fil, men vi behöver skapa två tabeller i db/migrate/004_add_tags.rb:
+
+class AddTags < ActiveRecord::Migration
+  def self.up
+    #Table for your Tags
+    create_table :tags do |t|
+      t.column :name, :string
+    end
+
+    create_table :taggings do |t|
+      t.column :tag_id, :integer
+      #id of tagged object
+      t.column :taggable_id, :integer
+      #type of object tagged
+      t.column :taggable_type, :string
+    end
+
+    # Index your tags/taggings
+    add_index :tags, :name
+    add_index :taggings, [:tag_id, :taggable_id, :taggable_type]
+  end
+
+  def self.down
+    drop_table :tags
+    drop_table :taggings
+  end
+end
+
+Du skapar tabellerna med kommandot "rake db:migrate". Att göra vår userklass kapabel att hantera taggar är nu en fråga om att lägga till en enda rad i app/models/user.rb:
+
+acts_as_taggable
+
+När userklassen läses in av Ruby anropas metoden acts_as_taggable som kommer att generera ett antal metoder i userklassen som har med taggning att göra. Framförallt skapas en metod som heter tag_list som vi kan testa på Rails kommandorad:
+
+ruby script/console
+u = User.find(1)
+u.tag_list # är tom
+u.tag_list = "ruby, stockholm, datormagazin"
+u.save
+u.tag_list # ska nu returnera ruby, stockholm, datormagazin
+
+Vi lägger till ett fält för tag_list i formuläret för att skapa och editera användare i app/views/admin/users/_form.rhtml:
+
+<p><label for="user_tag_list">Tags (comma separated)</label><br/>
+<%= text_field 'user', 'tag_list'  %></p>
+
+Du kan nu gå till "/admin/users" i din browser och fylla i lite taggar för dina användare. Vi visar taggarna i listan på hemsidan (app/views/account/index.rhtml):
+
+...
+    <th>Tags</th>
+...
+    <td><%= user.tag_list %></td>
+
+och på profilsidan för en användare (app/views/account/show.rhtml):
+
+<p>
+  <b>Tags:</b> <%= @user.tag_list %>
+</p>
+
+Nu kan administratörer alltså tagga användare och vi kan se vilka taggar olika användare har. Tanken var dock att använda taggarna för navigering, så vi lägger till en lista med alla taggar på hemsidan (i app/views/account/index.rhtml):
+
+<div id="tag_list">
+  <h2>Tags <% if params[:tag] %><%= link_to("Clear", "/") %><% end %></h2>
+  <ul>
+    <% for tag in @tags %>
+    <li>
+      <% if params[:tag] == tag.name %>
+        <b><%= tag.name %></b>
+      <% else %>
+        <%= link_to(tag.name, {:controller => 'account', :action => 'index', :tag => tag.name}) %>
+      <% end %>
+    </li>
+    <% end %>
+  </ul>
+</div>
+
+Vi ändrar vår index action så att den hämtar alla taggar och så att om en tag parameter är angiven så hämtar den bara användare som har den taggen:
+
+  def index
+    if params[:q]
+      @users = User.find_by_contents(params[:q])
+    elsif params[:tag]
+      @users = User.find_tagged_with(params[:tag])
+    else
+      @users = User.find(:all)
+    end
+    @tags = Tag.find(:all)
+  end
+
+Vi har nu färdigställt en enkel tag funktionalitet. Eller hur blir det förresten om man söker på en tag? Naturligtvis vill vi att om man söker på "stockholm" så ska användare med den taggen komma upp i sökresultaten. Vi åstadkommer detta relativt enkelt genom att lägga till ett nytt sökfält i app/models/user.rb:
+
+acts_as_ferret :fields => [:login, :email, :bio, :website, :address, :comments_string, :tags_string]
+
+...
+
+def tags_string
+  Tag.parse(tag_list).join(" ")
+end
+
+Om du nu startar om servern och tar bort indexfilerna under index katalogen så kan du söka på taggar lika väl som på andra fält.
+
+###########################################################
+#
+# Editering av användarprofil
+#
+###########################################################
+
+Du har kanske redan märkt att vi behöver lägga till ett sätt för en användare som inte är administratörer att uppdatera sin egen profil. Istället för att göra detta med samma typ av formulär som vi redan har i admingränssnittet ska vi göra det med Ajax. Som vi nämnde tidigare behöver du ha följande rad i din HTML header (i app/views/layouts/application.rhtml) för att kunna använda Ajax:
+
+  <%= javascript_include_tag :defaults %>
+
+Vi kan nu använa oss av helpermetoden in_place_editor för att editera email på profilsidan (i app/views/account/show.rhtml):
+
+<p>
+  <b>Email:</b>
+  <div id="<%= dom_id(:email, :div) %>"><%= @user.email %></div>
+</p>
+<%= in_place_editor dom_id(:email, :div), :url => {:action => "set_user_email", :id => @user} %>
+
+Metoden in_place_editor tar som första argument id:t på den div som innesluter texten som ska editera och :url argumentet anger vart den editerade texten ska skickas. Vi behöver nu bara lägga till en rad till vår users controller så är vi klara (i app/controllers/users_controller.rb):
+
+in_place_edit_for :user, :email
+
+När metoden in_place_edit_for (även kallat makro i railsparlör) anropas kommer den att generera action metoden set_user_email i vår controller. Det är metoden set_user_email som uppdaterar user objektet med den editerade texten. Ett varningens ord är på plats här eftersom metoden in_place_edit_for inte validerar attributet innan det sparas ner till databasen. Jag betraktar detta som en bugg i Rails. Om du till exempel vill ha validering av email adresser så bör du skriva din egen set_user_email metod som anropar metoden update_attributes istället för metoden update_attribute (utan s). Du kan se källkoden för in_place_edit_for antingen i API dokumentationen, eller genom att hämta Rails källkod med kommandot "rake rails:freeze:gems" och sedan öppna filen vendor/rails/actionpack/lib/action_controller/macros/in_place_editing.rb. Det visar sig att metoden in_place_edit_for är deprecated och kommar att flyttas ut till ett tillägg i och med Rails 2.0.
+
+För att göra det möjligt att ladda upp porträtt på profilsidan kommer vi att använda lite JavaScript men däremot ingen Ajax. Vi kan inte använda in_place_editor eftersom den bara fungerar på text, och vi kan inte använda form_remote_tag såsom vi gjorde för kommentarer eftersom den inte fungerar med filuppladdningar. Vi lägger till uppladdning av porträtt genom att inkludera en partial i app/views/users/show.rhtml:
+
+<% if current_user == @user %>
+  <%= render :partial => "upload_portrait", :locals => {:user => @user} %>
+<% end %>
+
+I filen _upload_portrait.rhtml i exempelkoden ser du att vi använder en JavaScript länk som kommer att göra ett formulär synligt när man klickar på den. Vi använder helpern link_to_function:
+
+<%= link_to_function label, nil, :id => dom_id(:image, :edit_link) do |page|
+      page[dom_id(:image, :edit_link)].hide
+      page[dom_id(:image, :div)].show
+    end
+%>
+
+Till skillnad från link_to_remote som gör en request till servern så kan man med link_to_function anropa JavaScript som exekverar i browsern och därmed är snabbare. För att avsluta uppladdningen av porträtt behöver du lägga till en action i users controller som tar emot den uppladdade bilden (i app/controllers/users_controller.rb):
+
+  def update
+    @user = User.find(params[:id])
+    @user.update_attributes!(params[:user])
+    flash[:notice] = "Your photo was uploaded"
+    redirect_to user_path(@user)
+  end
+
+Om du nu är inloggad och nagiverar till din egen profil kan du ladda upp och ändra porträtt.
+
+Avslutligsvis ska vi göra taggarna och biografin editerbara. Det enklaste sättet att göra detta på är att använda in_place_editor helpern igen. Vi ska dock visa en alternativ metod och detta har delvis att göra med att in_place_editor filtrerar bort HTML taggar vilket inte alltid är önskvärt. Dessutom vill vi ha auto-completion för taggarna, så att när man skriver namnet på en tag får man upp en lista på befintliga taggar att välja bland. För taggarna och biografin använder vi samma tillvägagångssätt som för kommentarerna, dvs vi använder en link_to_remote för att sedan visa en form_remote_tag. I exempelkoden ser du att vi för tag_list och bio attributen anropar helpern user_editable_attribute som är definierad i app/helpers/users_helper.rb. Ett antal olika partials är sedan involverade för att visa edit länken och ajaxformuläret. 
+
+Den kanske sexigaste detaljen i sammanhanget är hur vi gör auto-completion för tag_list. I show.rhtml använder vi helpern add_javascript som lägger till den JavaScript kod som returneras av en action som heter autocomplete_tags. Vad denna action gör är att den sätter alla befintliga taggar i databasen i en JavaScript variabel som heter tags. I _edit_tag_list.rhtml använder vi sedan JavaScript objektet AutoCompleter.Local som kommer att bevaka vårt textfält och förvandla den tomma div:en till en select box med taggar som matchar det vi skriver. Eftersom webbläsaren cachar JavaScript är det här ett billigt sätt att åstadkomma auto-completion eftersom vi undviker att skicka en server request varje gång textfältet uppdateras.
+
+Det var allt för den här gången. Om du har hängt med så här långt har du gjort det bra. I nästa del ska vi kika på testning och driftsättning och mycket annat smått och gott. Missa inte det.

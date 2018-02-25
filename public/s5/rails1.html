@@ -1,0 +1,701 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>Ruby on Rails Crash Course</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="20061113" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="Peter Marklund" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<!-- embedded styles -->
+<style type="text/css" media="all">
+.imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+#anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+#anim img {position: absolute; top: 42px; left: 24px;}
+img#me01 {top: 0; left: 0;}
+img#me02 {left: 23px;}
+img#me04 {top: 44px;}
+img#me05 {top: 43px;left: 36px;}
+</style>
+<!-- S5 JS -->
+<script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h1>Ruby on Rails Crash Course</h1>
+<h2>Great Works &#8226; Dec 6, 2006</h2>
+</div>
+
+</div>
+<div class="presentation">
+
+<div class="slide">
+<h1>Ruby on Rails Crash Course</h1>
+<h3>Peter Marklund</h3>
+<h4><a href="http://marklunds.com/">marklunds.com</a></h4>
+<p style="text-align: right;">
+<img src="pix/rails1/rails.png" alt="" title="Rails Logo" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Agenda - Day 1</h1>
+<ul>
+  <li>Presentation of course participants</li>
+  <li>Rails background and philosophy</li>
+  <li>Installing and configuring Rails</li>
+  <li>Creating the "Hello World" application</li>
+  <li>Introduction to Ruby</li>
+  <li>Basic Rails architecture</li>
+  <li>Get started on a simple Rails application</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Agenda - Day 2, 3</h1>
+<ul>
+  <li>TextMate</li>
+  <li>AJAX</li>
+  <li>REST</li>
+  <li>Finishing the Rails application</li>
+  <li>Deployment</li>
+  <li>Where to learn more and get help</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Presentation of course participants</h1>
+<ul>
+  <li><a href="http://marklunds.com/peter/cv" target="newWindow">Peter Marklund</a></li>
+  <li><a href="http://www.greatworks.se" target="newWindow">Great Works</a></li>
+  <li>Expectations on the course</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Rails Background and Philosophy</h1>
+<ul class="incremental">
+  <li><a href="http://www.37signals.com" target="newWindow">Jason Fried</a></li>
+  <li><a href="http://www.loudthinking.com/about.html" target="newWindow">David Heinemeier Hanson</a></li>
+  <li><a href="http://www.basecamphq.com/" target="newWindow">BaseCamp</a></li>
+  <li><a href="http://www.loudthinking.com/lt-files/moir/wired_article.jpg" target="newWindow">Hottest Hacker on Earth</a></li>
+  <li><a href="https://gettingreal.37signals.com/" target="newWindow">Getting Real</a></li>
+  <li><a href="http://www.pragmaticprogrammer.com/" target="newWindow">Dave Thomas and the Pragmatic Programmers</a></li>
+</ul>
+<!--
+  * DHH
+  - In 2004 David was finishing his CS studies, building BaseCamp, and extracting Rails at the same time
+  - David had a background in PHP and Java and wanted something better, something different, that would make him happy
+  - Rails has grown explosively over the last two years and has become a phenomenon with a huge impact on the industry
+  - Jolt award for Rails and the AWR book
+  - The Rails book is one of the best selling programming books in the world. There are maybe 20 or so other Ruby and Rails books
+    about to be published.
+  - 2005 Open Source award to David for Best Hacker
+  - Why is Rails better?
+    - Web development that doesn't hurt
+    - Programmer happiness
+    - Ruby is a great programming language
+    - Less code
+    - Beautiful, readable code
+    - Cleaner and better structured than PHP
+    - Convention over configuration
+      - Easier to maintain and learn
+      - less code
+      - forcing developers into best practices
+    - Simpler and fast to develop with than Java
+    - DRY (don't repeat yourself)
+    - Well tested code
+    - It just feels right (Dave Thomas)
+
+  * Jason/37Signals
+  - Jason wrote a book on defensive web design. A usability and web design authority.
+  - Signal vs Noise weblog has 30,000 readers daily.
+  - Getting Real (interview with Jason: http://www.itconversations.com/shows/detail471.html):
+    - Less is more, less features, less complex software
+    - Release half a product, not a half assed product. Release early. Let the users determine the features.
+    - Reduce mass to be able to change direction
+    - Feel the hurt - chefs become waiters. Solve your own problems / eat your own dog food.
+    - There is no beta, everything is a work in progress - keep iterating.
+    - Decisions are temporary
+    - It's cool to make mistakes in the open
+    - The UI design drives the programming, not the other way around
+    - Don't worry too much about scaling before it becomes a problem. It's a good problem to have.
+
+  * Dave Thomas and the Pragmatic Programmers
+  - They are thought leaders in the programming community
+  - Have helped document and lend credibility to Rails and Ruby
+  - They are outstanding developers, authors, and teachers
+  - Martin Fowler and many ohters have helped push Ruby as well
+-->
+</div>
+
+<div class="slide">
+<h1>Rails Elevator Pitch</h1>
+<p style="text-align: center">
+  <img src="pix/rails1/overview.gif" alt="" title="Rails blurb" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Installing and Configuring Rails</h1>
+<ul>
+  <li>On Windows you can use the <a href="http://instantrails.rubyforge.org/wiki/wiki.pl" target="newWindow">InstantRails package</a></li>
+  <li>
+    Three installation options on Mac OS X (in order of increasing difficulty)
+    <ul>
+      <li><a href="http://locomotive.raaum.org/" target="newWindow">The Locomotive package</a></li>
+      <li><a href="http://blog.duncandavidson.com/2006/04/sandboxing_rail.html" target="newWindow">Macports</a></li>
+      <li><a href="http://hivelogic.com/articles/2005/12/01/ruby_rails_lighttpd_mysql_tiger" target="newWindow">Use the source</a></li>
+    </ul>
+  </li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Creating the Hello World Application</h1>
+<ul class="incremental">
+  <li>script/generate controller Say</li>
+  <li>Map the Say controller to "/" in config/routes.rb to</li>
+  <li>Remove public/index.html</li>
+  <li>Create the app/views/say/index.rhtml file</li>
+  <li>Start the webrick server</li>
+  <li>Visit http://localhost:3000 - voila!</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Introduction to Ruby</h1>
+<ul>
+  <li><a href="http://www.rubycentral.com/book/intro.html" target="newWindow">Variables and methods</a></li>
+  <li>Control Structures</li>
+  <li>Built-in classes: String, Array, Hash</li>
+  <li><a href="http://www.rubycentral.com/book/tut_classes.html" target="newWindow">Classes and Objects</a></li>
+</ul>
+<!--
+ - A simple but powerful language
+ - Experiment with Ruby using script/console
+ - Variables
+ - Methods
+  - def sum(n1, n2)
+  - "great works".length
+  - "great works".index("w")
+  - def
+ - Everything is an object
+ - What is an object?
+   - An object is an instance of a class
+   - A class is a set of methods and variables (state / data). Example: Product
+   - An object is created with the constructor: Product.new
+ - Naming conventions
+   - Methods, local variables, and method arguments should start with lower case letter or underscore
+
+ class Person
+   attr_accessor :name
+
+   def initialize(name)
+     self.name = name
+   end
+
+   def say_goodnight
+     puts "#{name} says good night"
+   end
+ end
+
+ peter = Person.new("Peter")
+ jesper = Person.new("Jesper")
+
+ peter.say_goodnight
+ jesper.say_goodnight
+
+ - Inheritance
+ - Private (same instance only) and protected (all instances of same class and its subclasses)
+ - Modules
+
+module StoreHelper
+  def capitalize_words(string)
+    string.gsub(/\b\w/) { $&.upcase }
+  end
+end
+ - Arrays (lists)
+   a = [1, 'cat', 3.14]
+   a[0]
+   a[2] => nil
+   a << 'foobar'
+   a.size
+   a = %w{ ant bee foo }
+
+ - Hashes (maps, associative arrays):
+  inst_section = {
+    :cello => 'string',
+    :clarinet => 'woodwind',
+    :drum => 'percussion',
+    :oboe => 'woodwind',
+    :trumpet => 'brass'
+  }
+  inst_section[:cello]
+  inst_section[:bassoon]
+
+ - Control structures and iterators
+  if count > 3
+    puts "Try again"
+  elsif tries == 3
+    puts "You loose"
+  else
+    puts "Enter a number"
+  end
+
+  while weight < 100
+    ...
+  end
+
+  for person in @people
+    ...
+  end
+-->
+</div>
+
+<div class="slide">
+<h1>Basic Rails Architecture</h1>
+<ul>
+  <li>MVC</li>
+  <li>Models and ActiveRecord</li>
+  <li>Controllers</li>
+  <li>Views</li>
+  <li>rake</li>
+  <li>script/console</li>
+  <li>migrations</li>
+  <li>script/generate</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Start Building the Freelancer Application</h1>
+<ul>
+  <li>Setup the Rails app and configure the database</li>
+  <li>Setup the model and admin UI: script/generate scaffold_resource Creative</li>
+  <li>Add tags with the acts_as_taggable plugin</li>
+  <li>Add tags to the admin UI</li>
+  <li>Build the homepage listing creatives by tag</li>
+</ul>
+</div>
+
+<div class="slide">
+  <h1>TextMate - Editing in Style</h1>
+  <ul>
+	  <li>All of the Rails core team uses TextMate</li>
+	  <li>Automatic software updates</li>
+	  <li>Files, tabs, and navigation</li>
+          <li>Integrates with Subversion for version control</li>
+          <li>Extensible via code snippets and commands</li>
+	  <li>Folding - expanding/collapsing classes and functions</li>
+	  <li>The <a href="http://peepcode.com/articles/2006/09/02/textmate-basics-for-rails" target="newWindow">
+              PeepCode Screencast on TextMate</a> is very useful</li>
+          <li>
+            There is a 
+            <a href="http://www.pragmaticprogrammer.com/titles/textmate/" target="newWindow">
+            TextMate Book</a> from the Pragmatic Programmers
+          </li>
+	  <li>The <a href="http://www.macromates.com/textmate/manual/">Reference Manual</a> is quite good</li>
+	</ul>
+<!--
+  *** Overview
+  - Keyboard shortcuts
+  - Rails specific snippets and bundles
+  - Bundles have shortcuts, snippets, and commands.
+  - TextMate is updated often - software update setting
+  - Rails and TextMate go hand in hand
+
+  *** Important keys
+  - control, option, command, shift
+  - The escape key (pseudo auto complete word using words close by,
+    Max Williams has more powerful auto complete)
+
+  *** Terminal usage
+  - Menu -&gt; Help -&gt; "Terminal usage" creates link that gives you mate on the command line
+  - Open single file with mate
+  - Open whole directory with mate
+  - Open certain directories of interest: mate app config lib test vendor/plugins
+
+  *** Syntax highlighting
+  - You can select themes and create your own coloring
+
+  *** Basic File and Tab Navigation
+  - command-~ Switch between TextMate projects/windows.
+  - Open file: command-T (works with any part of the filename, you can type emcontest for emails_controller_test.rb)
+  - command-option-arrow left/right: switch tabs left/right (also highlights file in project drawer).
+  - You can see if a file has been saved (command-s to save)
+  - Method list: command-shift-T (is context sensitive, works in JavaScript to some extent)
+  - Close tab/file: command-w
+  - Close project: command-shift-w
+
+  *** Navigation within a document
+  - command-left/right arrow: beginning/end of line
+  - command-up/down arrow: top/bottom of file
+  - option-arrow: skip through words
+  - option-arrow-shift: highlight words
+  - option-arrow up/down: navigate paragraphs up/down in the indentation level
+
+  *** Bookmarking
+  - command-F2: adds a star, jump back with F2
+
+  *** Indenting, Commenting, Spell Checking
+  - command-option-[: indent select
+  - command-option-]: align equal signs
+  - Command-slash: comment lines
+  - Command-colon: spell checking
+
+  *** Moving blocks of text
+  - Hold down option key and select block with mouse, move with control-command-arrow
+
+  *** Folding
+  - Use F1 to fold a method
+  - command-option-1,2,3: fold whole file to a certain level
+
+  *** Intelligent Rails go-to-file: Jump
+  - Command-option-down - go to other file (view/controller, model/unit test)
+  - Command-option-shift-down - go to other file in menu
+  - Can also create new files
+
+  *** RHTML
+    - control-greater-than: to produce <%= ... %> (printing Ruby value to screen)
+    - control-greater-than (twice): to produce <% ... %> (evaluate Ruby code, no printing)
+    - control-less-than: start an HTML tag
+    - tag-name-tab: Auto complete common HTML tags (div, table etc., can hit tab several times, also works on highlighted text)
+    - control-shift-w: surround selected text in a tag (you can use that multiple times)
+
+  *** Subversion
+   - control-shift-A: bring up menu of commands
+   - Use TextMate for Subversion commit messages: export SVN_EDITOR='/usr/bin/mate -w'
+
+  *** Snippets
+    - Migrations
+      - mtab
+      - mcol
+      - mccc - creating many columns quickly
+
+  *** Rails Testing
+  - command-shift-R - run unit test (only method you are currently in)
+  - May need to set TM_RUBY environment variable to correct Ruby path (in TextMate)
+
+  *** Commands
+    - TextMate bundle show TM_ variables
+    - Find - control-F
+      ${TM_SELECTED_TEXT:-$TM_CURRENT_WORD}
+  - Add a bundle and write a snippet for a Ruby loop 
+    - Use <% %> as starting point
+    - ${1:objects}
+    - $0 - the last spot
+    - Tab Trigger, delete the key equivalent
+    - edob - Erb do block
+  - shift-tab to go back
+
+  *** Bundles
+    - Working with Ruby
+    - #!/usr/bin/env ruby
+  - Duane Johnson - Rails bundle
+  - TextMate bundle show keyboard shortcuts
+  - ruby snippet - sheband and rubygems
+  - Make a snippet even if it's only for a day or a week
+
+  *** Conclusion
+  - Learn it, script it, and automate your life!
+-->
+</div>
+
+<div class="slide">
+  <h1>AJAX</h1>
+  <ul>
+    <li>What is <a href="http://en.wikipedia.org/wiki/Ajax_(programming)" target="newWindow">AJAX</a>?</li>
+    <li>What can you do with AJAX?
+      <ul>
+        <li>Dynamically add to a list (or a select box)</li>
+        <li>In-Place Form Editing</li>
+        <li>Autocomplete a Text Field</li>
+        <li>Drag-and-Drop Sortable List</li>
+        <li>Live searching</li>
+      </ul>
+    </li>
+    <li>Rails AJAX support. How does it work?</li>
+  </ul>
+<!--
+  * What is AJAX?
+  Ajax, shorthand for Asynchronous JavaScript and XML, 
+  is a web development technique for creating interactive web applications.
+  The intent is to make web pages feel more responsive by exchanging 
+  small amounts of data with the server behind the scenes, 
+  so that the entire web page does not have to be reloaded each time the user makes a change. 
+  This is meant to increase the web page's interactivity, speed, and usability.    
+
+  * What can you do with AJAX?
+  
+
+  Sample AJAX applications:
+  Rails Ecommerce
+  Printable CEO: http://www.roughunderbelly.com/tasks/list
+  BaseCamp
+  Tadalist
+  Bubbleshare
+  other?
+-->
+</div>
+
+<div class="slide">
+  <h1>REST - Different Apps Talking to Each Other</h1>
+  <ul>
+    <li><a href="http://en.wikipedia.org/wiki/Representational_State_Transfer">REST</a> is a lightweight alternative to RPC (SOAP)</li>
+    <li>Rails uses CRUD over HTTP with XML</li>
+    <li>You generate the interface with script/generate scaffold_resource</li>
+    <li>Requires the latest Rails (Edge Rails)</li>
+    <li>REST client not available in Rails yet</li>
+  </ul>
+<!--
+  *** David's Talk at Rails Conf 2006 in Chicago
+  - ActiveResource: Make things disappear by inventing conventions
+  - consistency of actions
+  - Discoverability (like the Rails directory structure)
+  - Constraints are liberating
+
+  - Example 1: Groups and users. Method names that represent scope (add_user).
+    You can start with users or groups. Solution: Membership
+
+  - Example 2: Accounts and plans. Upgrading a user account to a plan.
+    The account has a subscription to a plan. The concern of relationship
+    between an account and a plan is encapsulated in subscription. Tracking
+    the progression of an account between different plans.
+
+  - Relationships are worthy to be models, so are events, and states.
+
+  - The drive to CRUD. Consistency. When you add methods that have their
+    own namespaces something is wrong. Think of the problem until a simple
+    approach appears. Conventions as a way to force people to do the right thing.
+    CRUD gives clean URLs and web services for free. We cannot accomodate everything,
+    just like in ActiveRecord you can drop down to SQL. Ruby has strong opinions on
+    how you do things, but you can do everything if you really need to (.send()).
+    No master mind can create the perfect pressure cooker that won't let out steam
+    (if you try you get Java). Don't try to solve all the worlds problems.
+    It should feel bad to go outside conventions but it should be possible. The
+    programmer is ultimately responsible for the trade offs.
+
+    Separation of concerns, bleading concerns to the controller (when you close this
+    case you also have to do this). Closing a case, event approach, state approach.
+
+    Testing the API with curl and wget. Send params as post params or XML.
+    You can invent new MIME types. A web interface, a mobile interface, and an API (backpack).
+
+    ActiveResource: 1-1 mapping to an object. Integer IDs are better in URLs
+    than human readable IDs, more permanent.
+    p = Person.find(1)
+    p.name = "Peter"
+    p.save # PUTs XML, gets URL back
+
+   *** TopFunky PeepCode: Restful Rails
+   - Ryan Daigle
+   - Scott Barron
+   - Josh Susser
+   - REST is not a new concept, but ActiveResource makes it much easier
+-->
+</div>
+
+<div class="slide">
+	<h1>Finishing the Freelancer Application</h1>
+  <ul>
+	  <li>Add thumbnails with the file_column plugin</li>
+	  <li>Add a nice look and feel using layouts and css</li>
+	  <li>Make it possible to filter by multiple tags on the homepage</li>
+	  <li>Add searching using acts_as_ferret</li>
+          <li>Add AJAX auto-completion and in-place form editing</li>
+	</ul>
+<!--
+   *** Starting over on the Freelancer application
+  - Documentation:
+  http://www.ruby-doc.org/core/ (Ruby)
+  http://api.rubyonrails.org/ (Rails, alternativ: rake doc:rails)
+  http://agilewebdevelopment.com/plugins/list?page=all (directory of Rails plugins)
+  Books used:
+    Rails Recipes
+    Rails Cookbook
+
+  - New application creative
+
+  - Add to version control
+    cd creative; rm -rf log tmp
+    svn import creative svn+ssh://pmarklun@marklunds.com/home/pmarklun/svn/creative/trunk -m "Initial import"
+    mv creative creative.bak
+    svn checkout svn+ssh://pmarklun@marklunds.com/home/pmarklun/svn/creative/trunk creative
+
+  - Get the latest Rails
+    rake rails:freeze:edge
+    svn add vendor/rails; svn commit
+
+  - Configure db
+    development:
+      adapter: sqlite3
+      database: db/sqlite3.development
+
+  - Setup creative model and admin UI
+    script/generate scaffold_resource Creative name:string external:boolean bio:text phone:string email:string website:string address:text
+    Edit migration script and make name mandatory.
+    map.resources :creatives (in config/routes.rb)
+    rake db:migrate
+
+    Start server and make a new creative at http://localhost:port/creatives
+    Rails automatically uses UTF8.
+    We get http://localhost:port/creatives.xml and a whole REST API for free.
+    In a future version of Rails you'll be able to write clients for this rest API and let remote applications talk to eachother.
+    Creative = ActiveResource::Struct.new { |c| c.uri = "http://localhost:3001/creatives" }
+
+  - Add the homepage.
+    script/generate controller Home index rss
+    map.connect '', :controller => "home" (config/routes.rb)
+    rm public/index.html
+
+    Edit def index and index.rhtml to list creatives.
+
+    Test no freelancers and many freelancers (should go in a controller test):
+    (1..60).each { |i| Creative.create(:name => "Frilansare #{i})") }
+    Creative.delete_all
+
+  - Add an RSS feed
+    Edit def rss
+    Rename rss.rhtml to rss.rxml
+    Put code from Rails Cookbook into rss.rxml
+    Visit /home/rss
+
+  - Add tags in model, admin UI, and on homepage using acts_as_taggable plugin
+    script/plugin install acts_as_taggable
+    svn add vendor/plugins/acts_as_taggable
+    Instructions at http://wiki.rubyonrails.com/rails/pages/ActsAsTaggablePluginHowto
+    Run migration, add acts_as_taggable, restart server
+    Remove created_at, and update_at from new.rhtml and edit.rhtml.
+    Add to new.rhtml:
+
+    <p>
+      <b>Tags</b><br />
+      <%= text_field_tag 'tag_list' %>
+    </p>
+
+    Edit def create and def update.
+    Add to show.rhtml
+
+    <p>
+      <b>Tags:</b>
+      <%=h @creative.tag_list %>
+    </p>
+
+    Add to edit.rhtml:
+
+    <p>
+      <b>Tags</b><br />
+      <%= text_field_tag 'tag_list', @creative.tag_list %>
+    </p>
+
+    Limitation: only works with one word tags. Can be fixed with a little hack.       
+
+    Add tags to homepage in def index and index.rhtml
+    Two column layout:
+    Roger Johansson
+    http://www.456bereastreet.com/lab/developing_with_web_standards/csslayout/2-col/
+    Made layout validate as XHTML 1.0 strict.  
+
+  - Add layout and about page and make admin UI use same layout
+    Add app/views/layouts/application.rhtml
+
+  - Add thumbnail image in model (file_column plugin), admin UI, and on homepage
+    First add image column to the database.
+    http://www.kanthak.net/opensource/file_column/ (instructions)
+    script/plugin install http://opensvn.csie.org/rails_file_column/plugins/file_column
+    Add file_column :image to creative.rb
+    Add to edit.rhtml and new.rhtml:
+    <%= file_column_field "creative", "image" %>
+    Add to show.rhtml:
+    <%= image_tag url_for_file_column("creative", "image") %>  
+    sudo gem install rmagick
+
+  - Add ability to select multiple tags (like delicious)
+    boolean AND and boolean OR
+
+  - Delicious JavaScript tag selector when adding/editing creatives
+    Pass on this one. Too much work.
+
+  - Searching
+    sudo gem install ferret
+    script/plugin install svn://projects.jkraemer.net/acts_as_ferret/tags/stable/acts_as_ferret
+
+  - Sorting by column header
+    Ascending/descending - name and updated.
+
+  Next steps:
+  - In place editing of bio
+  - Icons
+  http://www.iconbuffet.com/categories/blog
+-->
+</div>
+
+<div class="slide">
+	<h1>Deploying the Freelancer Application</h1>
+	<ul>
+		<li>The dark past of Rails deployment: LightTPD+FastCGI</li>
+		<li>Zed Shaw and Mongrel to save the day</li>
+		<li>Apache+Mongrel or Mongrel standalone</li>
+		<li>Scalability</li>
+	</ul>
+<!--
+ TODO: Problems with FastCGI?
+ TODO: More about Mongrel
+ - James Duncan Davidson has good articles on this topic
+ - Check the deployment chapter in the AWR	
+-->
+</div>
+
+<div class="slide">
+  <h1>Where to Learn More</h1>
+  <ul>
+    <li>
+      <a href="http://www.rubyonrails.org" target="newWindow">Rails website</a>, <a href="http://www.ruby-lang.org" target="newWindow">Ruby website</a>,
+      <a href="http://www.rubyforge.org" target="newWindow">Ruby code repository</a>,
+      <a href="http://www.ruby-doc.org/core/" target="newWindow">Ruby API</a>,
+      <a href="http://api.rubyonrails.org/" target="newWindow">Rails API</a>
+    </li>
+    <li>Recommended books:
+      <ul>
+        <li><a href="http://www.pragmaticprogrammer.com/title/rails/" target="newWindow">Agile Web Development with Rails - Second Edition</a></li>
+        <li><a href="http://www.pragmaticprogrammer.com/titles/ruby/index.html" target="newWindow">Programming Ruby (The Pickaxe)</a></li>
+        <li><a href="http://www.pragmaticprogrammer.com/titles/fr_rr/index.html" target="newWindow">Rails Recipes</a></li>
+        <li><a href="http://www.oreilly.com/catalog/railsckbk/" target="newWindow">Rails Cookbook</a></li>
+        <li><a href="http://www.amazon.com/Beginning-Ruby-Rails-E-Commerce-Professional/dp/1590597362" target="newWindow">Beginning Ruby on Rails E-Commerce</a></li>
+        <li><a href="http://mongrel.rubyforge.org/books.html" target="newWindow">The Mongrel Book</a></li>
+        <li><a href="http://www.oreilly.com/catalog/rjsrails/">RJS Book</a> (AJAX)</li>
+      </ul>
+    </li>
+    <li><a href="http://peepcode.com" target="newWindow">PeepCode</a> - excellent instruction videos (screencasts)
+    </li>
+    <li>
+      <a href="http://www.rails.se" target="newWindow">The Swedish Rails Community</a> - has a mailing list
+    </li>
+    <li>
+      Get involved in the community - you will get so much back!
+    </li>
+  </ul>
+</div>
+
+</div>
+
+</body>
+</html>

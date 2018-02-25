@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>Building a CRM System on Rails</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="20061113" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="Peter Marklund" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<!-- embedded styles -->
+<style type="text/css" media="all">
+.imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+#anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+#anim img {position: absolute; top: 42px; left: 24px;}
+img#me01 {top: 0; left: 0;}
+img#me02 {left: 23px;}
+img#me04 {top: 44px;}
+img#me05 {top: 43px;left: 36px;}
+</style>
+<!-- S5 JS -->
+<script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h1>Building a CRM System on Rails</h1>
+<h2>Stockholm Rails Meetup &#8226; Nov 15, 2006</h2>
+</div>
+
+</div>
+<div class="presentation">
+
+<div class="slide">
+<h1>Building a CRM System on Rails</h1>
+<h3>Peter Marklund</h3>
+<h4><a href="http://marklunds.com/">marklunds.com</a></h4>
+<p style="text-align: right;">
+<img src="pix/rails1/rails.png" alt="" title="Rails Logo" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Agenda</h1>
+<ul>
+	<li>Background and Overview</li>
+	<li>Functionality and Architecture</li>
+	<li>Selected Hacks</li>
+	<li>More Hacks</li>
+	<li>Testing</li>
+	<li>Infrastructure and Deployment</li>
+	<li>Discussion/Questions</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Background and Overview</h1>
+<ul>
+	<li>Green Media Toolshed - 
+		helping <a href="http://www.greenmediatoolshed.org/public/memberlist.acs" target="newWindow">
+			environmental organizations</a> reach the media</li>		
+	<li>Member Sites - publishing tool on <a href="http://drupal.org/" target="newWindow">Drupal</a> (PHP/MySQL)</li>
+	<li>Volunteer Hub - collaborative updating of contact info on Rails (PostgreSQL)</li>
+	<li>Media Contact Manager (MCM) - 
+		<a href="http://en.wikipedia.org/wiki/Customer_Relationship_Management" target="newWindow">CRM</a> on Rails (PostgreSQL)
+	</li>
+</ul>
+<!--
+ * Green Media Toolshed
+   Improve the effectiveness of communications between environmental groups and the public
+   The media helps educate the public on the environment
+   Maintain accurate lists of journalists contact information (numbers, emails, addresses)
+
+   Based in Washington DC
+   Built original system on OpenACS three years ago with Lars Pind in Copenhagen
+   Ported system to Rails with Jarkko Laine this summer
+   My CTO Paul Doerwald based in Oxford/UK
+   Daily meetings, Skype, phone conferences
+   
+ * Non-profits that GMT have worked with:
+ - African Wildlife Foundation
+ - Alaska Conservation Alliance
+ - American River
+ - Center for Seachange
+ - Climate Solutions
+ - Pesticide Action Network
+ - Rails-to-Trails Conservancy
+-->
+</div>
+
+<div class="slide">
+<h1>Functionality and Design</h1>
+<ul>
+	<li>Advanced search for contacts and outlets</li>
+	<li>Creating lists of contacts and outlets</li>
+	<li>Sending email and fax to those lists</li>
+  <li>Web 2.0 design by <a href="http://www.scratchmedia.co.uk/" target="newWindow">ScratchMedia</a></li>
+</ul>
+<!--
+	* Searching (migration 072)
+	  You have a tsvector column that you search against.
+	  Order by the search rank
+	  Only indexing relevant data - outlet types, street names
+	  Contact weights: name, job title, outlet name, location
+	  Performance - performance up and down.
+	
+	 select *
+	 from table
+	 WHERE table.idxfti @@ to_tsquery('default','new &amp; york &amp; times')
+	 ORDER BY rank(table.idxfti, to_tsquery('default','new &amp; york &amp; times')) desc
+
+  * Design
+  - Don't forget to test in IE!
+-->
+</div>
+
+<div class="slide">
+<h1>Database Schema</h1>
+	<ul>
+	  <li>outlets - New York Times, has many locations</li>
+	  <li>locations - Manhattan Office, has many jobs</li>
+	  <li>jobs - Editor, belongs to contact</li>
+	  <li>contacts - Jim Smith, has many jobs</li>	
+		<li>lists, many-to-many relationship with jobs and outlets</li>
+		<li>bulk_emails (draft, scheduled, sent, send_error)</li>
+		<li>emails (sent, address_missing, send_error, bounced,duplicate)</li>
+		<li>faxes (request_sent, request_error, request_invalid, address_missing, sent, send_failure, duplicate)</li>
+	</ul>
+</div>
+
+<div class="slide">
+<h1>Stats</h1>
+<ul>
+  <li>7000 LOC</li>
+  <li>37 controllers, 60 models, 189 views and partials</li>
+  <li>90 migrations</li>
+  <li>800 revisions in Subversion since january</li>	
+</ul>
+<!--
+	- Two rails apps in one
+	- Less is more...
+-->
+</div>
+
+<div class="slide">
+<h1>Selected Hacks</h1>
+<ul class="incremental">
+	<li>Live search</li>
+	<li>HTML tables with hidable columns (user preference)</li>
+	<li>Scheduled jobs</li>
+	<li>File storage</li>
+	<li>TinyMCE WYSIWYG</li>
+	<li>Dynarch calendar</li>
+</ul>
+<!--
+ - Help texts - send email page on production server
+
+ - Plugins:
+  - bundled_resource
+  - exception_notification
+  - rails_tidy
+  - tiny_mce
+  - acts_as_taggable
+  - acts_as_versioned
+  - calendar_helper
+  - rails_rcov
+  - selenium_on_rails	
+
+=> Heart of the application:
+ - Delivering emails and faxes
+ - Error handling
+ - Bounce handling for emails and faxes
+ - duplicate addresses
+ - optimistic locking
+ - delivery status list
+-->
+</div>
+
+
+<div class="slide">
+<h1>More Hacks</h1>
+<ul class="incremental">
+<li>Faxing with MyFax.com web service API</li>
+<li>Timezones</li>
+<li>Go Back links</li>
+<li>Items per page (user preference)</li>
+<li>Talking to multiple databases</li>
+<li>Help Texts</li>
+<li>FasterCSV</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Testing</h1>
+<ul>
+	<li>7000 LOC, Code to test ratio 1:0.9, about 10,000 assertions in 400 tests</li>
+	<li>HTML validation with Tidy and W3C</li>
+	<li>HTML quoting - h(my_var) and link_to h(my_var)</li>
+	<li>WWW::Mechanize for monitoring production server?</li>
+	<li>Checking for broken links, submitting forms?</li>
+	<li>Comprehensive suite of unit, controller, and integration tests</li>
+	<li>Test coverage?</li>
+</ul>
+<!--
+	- First web project that I have worked in that has had comprehensive tests
+	  (rather than patches of tests or no tests which is the norm)
+	- Tests have saved me many times
+-->
+</div>
+
+<div class="slide">
+<h1>Infrastructure and Deployment</h1>
+<ul>
+	<li>Rails 1.1.6 / LightTPD / FastCGI / PostgreSQL</li>
+	<li>Subversion, Trac, and Mantis</li>
+	<li>Frequent server updates using Capistrano and rake deploy</li>
+	<li>Staging and production servers</li>
+	<li>Red Hat Enterprise at Rackspace</li>
+	<li>Error notifications</li>
+	<li>filter_parameter_logging("password") if RAILS_ENV == 'production'</li>
+	<li>Monitoring? Response times?</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Discussion/Questions</h1>
+<ul>
+  <li>Rails makes life easier - but not easy enough?</li>
+  <li>Deployment is still hard</li>
+  <li><a href="http://pinds.com/articles/2005/11/15/reuse-in-the-large-is-an-unsolved-problem-why-i-left-openacs-for-rails" target="newWindow">
+	  Reuse in the large</a> (Zope, Drupal) vs
+	  in the <a href="http://www.loudthinking.com/arc/000407.html" target="newWindow">small</a> 
+	  (<a href="http://www.loudthinking.com/arc/000557.html" target="newWindow">Rails</a>). Middle ground? Implications for SOA?</li>
+</ul>
+<!--
+	- Life as a web developer - Rails makes it easier, but not easy enough
+	  - RAD makes reuse less attractive
+	
+"There are quite simply some tasks that are hard to get right, regardless the language you write in. In that case it is better to put the NIH syndrome away, and search for an existing component."
+
+    - The trend historically is towards more reuse and abstraction	
+	  - Still plenty of opportunity for shooting yourself in the foot
+	  - No single recipe for "how to do it right"
+	  - deployment
+	  - plugins
+	  - certified suites of plugins
+	  - too many options
+	  - lack of conventions
+	  - building blocks targeted at certain needs
+	  - you still need to know what you are doing
+	  - two types of developers:
+	   - hack everything yourself from scratch (NIH syndrome)
+	   - use premade building blocks (black boxes) and avoid hassle
+	     let somebody else deal with the problem
+	  - reuse in the large vs reuse in the small
+-->
+</div>
+
+<div class="slide">
+<h1>Thanks</h1>
+<ul>
+	<li>Thanks to <a href="http://jlaine.net" target="newWindow">Jarkko Laine</a>, Paul Doerwald, and 
+		the <a href="http://www.greenmediatoolshed.org" target="newWindow">GMT</a>
+		team for all the great work
+	</li>
+  <li>
+	 Thanks to Johan Lind and 
+  <a href="http://www.valtech.se" target="newWindow">Valtech</a> for hosting this meetup
+  </li>
+</ul>
+</div>
+
+</div>
+</body>
+</html>

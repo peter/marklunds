@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>Request Logging with MongoDB</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="December 16:th, 2010" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="Rails Mentor" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="../assets/ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="../assets/ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="../assets/stylesheets/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="../assets/ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<link rel="stylesheet" href="../assets/stylesheets/pressie.css" type="text/css" />
+
+<!-- S5 JS -->
+<script src="../assets/ui/default/slides.js" type="text/javascript"></script>
+
+<!-- Syntax Highlighter -->
+<link rel="stylesheet"  href="../assets/dp.SyntaxHighlighter/Styles/SyntaxHighlighter.css"></link>
+
+<link rel="stylesheet"  href="../assets/stylesheets/custom.css"></link>
+
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h2>Copyright © 2010 Peter Marklund</h2>
+</div>
+
+</div>
+
+
+<div class="presentation">
+  
+<div class="slide"><h1>Request Logging with MongoDB</h1>
+</div>
+<div class="slide"><h1>Overview</h1>
+<ul>
+	<li>A consolidated request log for all app servers</li>
+	<li>Every request becomes a single document in MongoDB</li>
+	<li>Logging is done from a Rack middleware</li>
+	<li>The solution is packages up in the request_log RubyGem</li>
+</ul>
+</div>
+<div class="slide"><h1>MongoDB Advantages</h1>
+<ul>
+	<li>Asynchronous fast inserts yield a small overhead (a couple of ms)</li>
+	<li>Capped collections for log rolling</li>
+	<li>Flexible schema</li>
+	<li>Good query capabilities</li>
+</ul>
+</div>
+<div class="slide"><h1>A Basic Request Document</h1>
+<pre>
+method: "GET"
+path: "/"
+ip: "10.218.1.177"
+time: 2010-10-28 21:43:38 UTC
+params: {"hello_world"=&gt;"1"}
+status: 200
+runtime: 0.000303
+</pre>
+</div>
+<div class="slide"><h1>A Request Document with Custom Fields</h1>
+<pre>
+method: "GET"
+path: "/v1/brands/mama-se/products"
+status: 200
+time: 2010-12-11 15:19:56 UTC
+runtime: 0.018139
+ip: "10.244.167.17"
+params: {"brand_id"=&gt;"mama-se", "x_apple_receipt"=&gt;"[FILTERED]"}
+controller: "v1/products"
+action: "index"
+user_agent: "Mama+ 1.51 (iPad; iPhone OS 4.2; sv_SE; mama-se; 1.51; 0d870bfad89889fb924ab979e43c17c743db5cf0)"
+app_version_market: "1.51"
+app_type: "iPad"
+app_os: "iPhone OS 4.2"
+app_locale: "sv_SE"
+brand_id: "mama-se"
+app_version: "1.51"
+device_id: "0d870bfad89889fb924ab979e43c17c743db5cf0"
+</pre>
+</div>
+<div class="slide"><h1>Gem Dependencies</h1>
+<pre>
+  gem 'mongo', '~&gt; version known to work'
+  gem 'bson_ext', '~&gt; version known to work'
+  gem 'request_log', '~&gt; version known to work'
+</pre>
+</div>
+<div class="slide"><h1>Connecting to MongoDB</h1>
+<pre>
+if ENV['MONGOHQ_URL']
+  require 'uri'
+  require 'mongo'      
+  uri = URI.parse(ENV['MONGOHQ_URL'])
+  connection = Mongo::Connection.from_uri(uri.to_s)
+  RequestLog::Db.mongo_db = connection.db(uri.path.gsub(/^\//, ''))
+end
+</pre><p></p>
+</div>
+<div class="slide"><h1>Tailing the Log</h1>
+<pre>
+rake request_log:tail
+</pre>
+</div>
+<div class="slide"><h1>Log Query: Time and Status</h1>
+<pre>
+rake request_log:print
+	from = "2010-10-28 17:06:08"
+	to = "2010-10-28 17:06:10"
+	conditions = 'status: 200'
+</pre>
+</div>
+<div class="slide"><h1>Log Query: Path Regexp</h1>
+<div class="code-normal">
+<pre name="code" class="ruby:nogutter:nocontrols">"path" =&gt; /promo/</pre><p></div><div class="codeurl"><a href="txmt://open?url=file:///Users/peter/src/presentation_logging_with_mongodb"></a></div></p>
+</div>
+<div class="slide"><h1>Log Query: Runtime</h1>
+<div class="code-normal">
+<pre name="code" class="ruby:nogutter:nocontrols">"runtime" =&gt; {"$gt" =&gt; 0.5}</pre><p></div><div class="codeurl"><a href="txmt://open?url=file:///Users/peter/src/presentation_logging_with_mongodb"></a></div></p>
+</div>
+<div class="slide"><h1>Log Query: Params (Embedded Data)</h1>
+<div class="code-normal">
+<pre name="code" class="ruby:nogutter:nocontrols">"params.currency" =&gt; "USD"</pre><p></div><div class="codeurl"><a href="txmt://open?url=file:///Users/peter/src/presentation_logging_with_mongodb"></a></div></p>
+</div>
+<div class="slide"><h1>Resources</h1>
+<ul>
+	<li><a href="http://github.com/peter/request_log">Request Log RubyGem</a></li>
+	<li><a href="http://blog.mongodb.org/post/172254834/mongodb-is-fantastic-for-logging">MongoDB is Fantastic for Logging</a></li>
+	<li><a href="http://blog.eventbrite.com/guest-post-why-you-should-track-page-views-with-mongodb">Why You Should Track Page Views with MongoDB</a></li>
+	<li><a href="http://www.graylog2.org">Graylog2</a></li>
+	<li><a href="http://www.loggly.com">Loggly</a></li>
+	<li><a href="http://www.splunk.com">Splunk</a></li>
+</ul></div>
+</div>
+
+<!-- Syntax Highlighter -->
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shCore.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCSharp.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushPhp.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushJScript.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushJava.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushVb.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushSql.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushXml.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushDelphi.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushPython.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushRuby.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCss.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCpp.js"></script>
+<script language="javascript">
+dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+</body>
+</html>

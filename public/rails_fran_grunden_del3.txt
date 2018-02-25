@@ -1,0 +1,218 @@
+Ruby on Rails från grunden - del 3
+
+Det här är den tredje och sista delen i vår artikelserie om webbramverket Ruby on Rails. Vi kommer att fördjupa oss i testning och dessutom kika på driftsättning, performance, och skalbarhet.
+
+###########################################################
+#
+# Exempelkod och screencast
+#
+###########################################################
+
+För att kunna bygga applikationen i den här artikeln behöver du ha Ruby on Rails installerat och ha tillgång till koden från förra artikeln. Du kan hämta koden från www.datormagazin.se där du även finner en README fil med instruktioner. En del kod fick inte plats i tidningen och finns att tillgå i README filen istället. Du kan även ladda ner en screencast (video) där jag demonstrerar hur jag bygger applikationen. Applikationen kommer att finnas tillgänglig online för en tid på http://community.marklunds.com.
+
+###########################################################
+#
+# Testning
+#
+###########################################################
+
+I förra delen byggde vi en hel del funktionalitet - kommentarer, taggning, sökning, RSS, och Ajax. Tyvärr har vi kommit så långt delvis till priset av att vi släpat efter med våra tester. Vi har förstås gjort manuella tester i webbläsaren men vi har inte utnyttjat Rails goda stöd för automatiserade tester så mycket som vi borde. Ju mer komplicerad vår applikation blir, desto mer sårbara för buggar blir vi när någon, som kanske inte känner till koden så väl (typiskt sett oss själva, minnet är kort...), lägger till en ny funktion eller strukturerar om koden. Testning har länge varit ett försummat område inom webbutveckling men tack vare Rails har vi nu ett gyllene tillfälle att ändra på den saken.
+
+Ett sätt att få en uppfattning om vilka delar av ens kod som är otestade är att använda sig av rcov - ett code coverage verktyg för Ruby. Vi installerar och använder rcov och tillägget rails_rcov:
+
+gem install rcov
+ruby script/plugin install http://svn.codahale.com/rails_rcov
+rake test:test:rcov
+
+En tjusig HTML rapport har nu genererats åt oss i coverage/test/index.html. I rapporten kan vi utläsa att vi har drygt 500 rader applikationskod, vilket är ganska lite, till och med för en railsapplikation. Vi kan också se på de röda staplarna att vi behöver förbättra vår code coverage i våra comments, ratings, och users controllers samt i motsvarande helpers. Notera att du kan klicka på varje fil och hitta de rödfärgade rader i din kod som inte exekveras av testerna. En annan grov indikation på om man behöver skriva mer tester får man med kommndot "rake stats" som visar att "Code to Test Ratio" är 1:0.8 i vårt fall. Det är alltså dags att kavla upp ärmarna och skriva några tester.
+
+Vi börjar med att ta oss an users controllern i test/functional/users_controller_test.rb. Först deklarerar vi att vi vill använda två fixtures: users och comments. Varje databastabell för våra modellklasser har en motsvarande fixtures fil på YAML format som ligger under test/fixtures. YAML är ett koncist och läsbart sätt att serialisera data till textfiler och är ett alternativ till XML. För varje fixture som vi anger i vårt test kommer motsvarande databastabell först att tömmas när testet körs och sedan att fyllas med test data från fixtures filen. Som ett komplement kan du även använda setup metoden för att sätta upp test data. Varje publik metod i vårt test case vars namn börjar med test_ representerar ett test. Setup metoden kommer att köras innan varje sådan testmetod. En testmetod kör i en databastransaktion som rullas tillbaka när testmetoden avslutas. Testet för vår show action är uppbyggt på följande vis:
+
+user = users(:quentin) # Hämta fixture data
+get :show, :id => user.id
+assert_response :success
+assert_template 'users/show'
+assert_equal(user, assigns(:user)) # Kontrollerar att @user är satt
+assert_select "html > body p", Regexp.new(user.login)
+assert_select "html > body p", Regexp.new(user.comments.first.body)
+assert_select "div[class=comment]", 1 # En kommentar
+
+Vi verifierar att response code är 200, att rätt template används, och att användarnamn och en kommentar finns med på sidan. Notera att man kommer åt data in en fixture med en metod med samma namn - i vårt fall users. Kommandot assert_select är ett kraftfullt verktyg för att parsa HTML koden i en vy. Om vi nu genererar om code coverage rapporten med "rake test:test:rcov" och klickar in på users controllern så kan vi se att vi har fått täckning för vår show action. 
+
+Sedan förra artikeln har vi en edit action som använder RJS för att returnera JavaScript kod som tar bort en edit länk och visar ett formulär. För att förvissa oss om att JavaScript koden fungerar behöver man egentligen köra den mot en riktig HTML sida i en webbläsare. Selenium är ett testverktyg som kan göra just detta. Det finns ett plugin som integrerar Selenium med Rails och en FireFox extension som du kan använda för att spela in ett test case i din webbläsare och sedan spela upp det automatiskt. Här i vårt lilla controller test har vi dock inte tillgång till någon webbläsare och vi får nöja oss med att kontrollera att JavaScript koden som returneras innehåller de kommandon som vi förväntar oss. För att hjälpa oss med detta installerar vi ett tillägg som heter ARTS:
+
+./script/plugin install http://thar.be/svn/projects/plugins/arts
+
+Vi kan nu testa vår edit action:
+
+def test_edit
+  xhr :get, :edit, :id => users(:aaron), :attribute => 'bio'
+  assert_response :success
+  assert_rjs :page, dom_id('bio', :edit_link), :hide
+  assert_rjs :replace, dom_id('bio', :div), /<form/
+end
+
+Vad assert_rjs gör är att den verifierar att JavaScript koden som genereras av ett visst RJS kommando finns med i svaret. En liten hake här är att assert_rjs inte fungerar mot replace kommandot såsom det var skrivet så jag var tvungen att skriva om det på en alternativ syntax, se README filen. På liknande sätt som för vår edit action kan vi testa alla övriga actions i vår users controller, dvs. edit_cancel, update, och autocomplete_tags. Notera att vi testar update metoden både med en Ajax request och en vanlig HTTP post. Vi testar även att man inte kan uppdatera andra användare om man inte är administratör. I samband med detta flyttade jag in helper metoden can_edit_user? från helpern till controllern. Jag la även till ett test för metoden "set_user_email" som genereras av in_place_edit_for makrot. I test caset för ratings controllern verifierar vi att man inte kan sätta för höga betyg och att man inte kan sätta betyg på sig själv. För comments controllern testar vi RSS feeden med hjälp av assert_select. Det visar sig att assert_select inte bara klarar HTML utan fungerar fint för XML i allmänhet. För att undvika varningar och potentiella fel när man använder XML bör man dock konfigurera Rails XML parser så att den behandlar dokument som XML istället för HTML. Du kan se i filen lib/rails_modifications.rb hur jag gör detta.
+
+För att pressa upp sin test coverage till riktigt höga nivåer kan man använda ett fascinerande nytt verktyg som heter Heckle. Heckle muterar och permuterar din kod, dvs. inverterar booleanska uttryck och byter ut objekt osv., och kontrollerar sedan att dina tester misslyckas om de körs mot den muterade koden. Vi installerar och släpper lös Heckle på create actionen i vår comments controller:
+
+gem install -y heckle
+heckle -t test/functional/comments_controller_test.rb CommentsController create
+
+När jag körde detta kommando fann jag att jag glömt att testa highlight effekten på den skapade kommentaren och att formuläret återställts. Jag la därför till assertions för detta. Man kan tycka att vi går överstyr med testning av Ajax kod här. Vad det här exemplet illustrerar är dock främst att Heckle är ett mycket värdefullt verktyg för att höja test coverage. Heckle lärde mig dessutom någonting om Rails API. Det visade sig att :object argumentet till render :partial inte har någon effekt om objektet (i det här fallet @comment) är en instansvariabel. Genom att kika på testet new_render_test.rb i Rails källkod under vendor/rails kunde jag bekräfta att så var fallet. Att läsa Rails automatiserade tester är ofta det bästa sättet att lära sig hur Rails API är tänkt att användas.
+
+Om vi nu genererar vår code coverage rapport igen så ser vi att vi täppt till de största hålen som vi fann tidigare. Rails har inget inbyggt stöd för att testa helper metoder så där måste man vara lite kreativ. Du kan kika på ett helper test i filen test/unit/users_helper_test.rb samt ett alternativt sätt att testa helpers på i metoden test_add_javascript i users_controller_test.rb.
+
+Även om det inte syns i vår code coverage rapport så saknar vi en del tester för våra modeller. Vi behöver bland annat testa att vi kan söka på användare och slå upp användare på taggar. Kika på testerna som gör detta i test/unit/user_test.rb.
+
+Begränsningen i controller tester (så kallade funktionstester) i Rails är att de bara kan testa en controller i taget samt att de inte involverar Rails dispatcher och routing. Rails integrationstester däremot testar mot Rails dispatcher med riktiga URLer och kan testa igenom hela användarscenarion. Vi skapar nu ett nytt integration test som heter tracer_bullet och installerar tilläggen Form Test Helper och Http Test (se kommandon i README filen). Om du kikar på test/integration/tracer_bullet_test.rb kan du se hur jag simulerar att en användare registerar sig, editerar sin profil, gör några sökningar, navigerar med hjälp av taggar och till sist loggar ut:
+
+[[[ 
+  TODO Datormagazin: XXX inkludera integration_test.tiff här 
+
+  Bildtext: Ett utdrag ur vårt integration test som simulerar att en användare registrerar sig och använder 
+            diverse funktioner på siten.  
+]]]
+
+Som du märker är integrationstest snarlika controller tester. Istället för att ange vilken action man vill skicka en request till anger man en URL. Sedan använder man sig av assert_response, assert_select och så vidare precis som vanligt. Det är tillägget Form Test Helper som ger oss metoden submit_form och select_link som vi använder för att submitta formulär och klicka på länkar. Tyvärr hittade jag en bugg i tillägget och var tvungen att patcha det lite, se README filen. Ett alternativ till Form Test Helper är Hpricot Forms som använder HTML parsern Hpricot istället för Rails inbyggda parser. Vad clicks_around metoden ovan gör är att den letar efter trasiga länkar genom att följa alla länkar på sidan. Anledningen till att jag installerade mitt eget tillägg Http Test var att jag ville HTML validera åtminstone de publika sidorna i vår applikation. Du kan se hur jag konfigurerar detta i test/test_helper.rb. Det finns tre HTML validatorer att välja mellan - tidy, xmllint, och w3c. De två senare borde vara likvärdiga i funktionalitet men Tidy validatorn kan hitta andra potentiella fel, såsom tomma paragraf taggar. Om man lägger in &-tecken i sitt fixture data som behöver HTML quotas så är HTML validering ett sätt hitta ställen där man använder <%= dangerous_user_input %> men borde använda <%=h dangerous_user_input %>. Metoden h är en Rails helper som HTML quotar sitt argument. I tillägget Http Test finns även ett skript som man kan använda mot sin produktionssite för att HTML validera den och leta upp trasiga länkar och bilder.
+
+En svårighet med testning av applikationer har traditionellt varit att det är svårt att isolera den del av koden som man vill testa. Det kan exempelvis innebär att man måste ha hela systemet igång eller att man måste koppla in externa program. Tack vare ett tillägg som heter Mocha and Stubba (alternativt programmet Flexmock) kan detta problem förpassas till det förgångna. Antag att du utvecklar en webbshop och att du använder en betalservice via en metod som heter Gateway.make_payment. Naturligtvis vill vi inte göra riktigta betalningar varje gång vi kör våra tester. Med Mocha and Stubba löser vi det problemet elegant:
+
+Gateway.expects(:make_payment).with(credit_card_no, expiry).returns(true)
+
+Vad raden ovan gör är att den definierar om (stubbar ut) Gateway.make_payment metoden så att den alltid returnerar true och kontrollerar att den metoden anropas under testet. Det fina är även att när testet exekverat klart så återställs den riktiga make_payment metoden åt oss automatiskt. Om vi ville stubba ut make_payment metoden för alla våra tester kunde vi skapa filen test/mocks/test/gateway.rb:
+
+require File.join(RAILS_ROOT, "models", "gateway")
+class Gateway
+  def make_payment(card_no, expiry)
+    return true
+  end
+end
+
+Vi utnyttjar här att klassdefinitioner i Ruby (inklusive dem i standardbiblioteket) är öppna så att du kan definiera om dem vid behov.
+
+Nu har vi lagt till en ansenlig mängd tester och vår Code to Test Ratio är uppe i 1:1.4. Vi kan alltså gå vidare utan att skämmas...
+
+###########################################################
+#
+# Driftsättning
+#
+###########################################################
+
+Det kan vara många besvärliga delar att hålla i huvudet när man ska gå i drift och det är mycket som kan gå fel, åtminstone i teorin. Inte sällan oroar man sig i onödan. Detta är kanske anledningen till att man driftsätter sin applikation för sent och/eller att man går överstyr med att uppnå hög skalbarhet och tillgänglighet (redundans). James Duncan Davidson har helt rätt när han skriver i railsboken att man ska driftsätta sin applikation tidigt i utvecklingsprocessen. Precis som man kan använda en iterativ process för utvecklingen kan man även göra det för driften. Tanken är att man ska börja enkelt och låta driften utvecklas i takt med behoven.
+
+Det är många beslut involverade i samband med driftsättning. Vilken hosting provider ska man välja? Vilket operativsystem, vilken webbserver, databasserver, backuplösning, monitorering o.s.v? Driftsättning har tidigare varit något av Rails akilleshäl, särskilt under 2004 och 2005 då communityt ännu inte samlats kring en bra lösning. Under det senaste året har dock en bra arkitektur utkristalliserat sig och den bygger på en Ruby webbserver som heter Mongrel och ett driftsverktyg som heter Capistrano. De andra komponenterna som ingår i driften kan variera men den setup som jag beskriver här är väldokumenterad och är den som oftast rekommenderas.
+
+För hosting av Community applikationen använder jag RailsMachine.com som erbjuder Virtual Private Servers (VPS) baserade på virtualiseringsmotorn Xen. En VPS är en virtuell maskin med en garanterad mängd minne och CPU. För programmen och användaren framstår en VPS som en separat fysisk maskin. Fördelen med en VPS är att man slipper bekymra sig om hårdvaran samt att man lätt kan lägga till mer hårdvara vid behov. Den billigaste formen av Rails hosting är shared hosting som innebär att du delar en server med ett antal andra användare. Shared hosting erbjuds av TextDrive och Dreamhost mfl. i USA samt ett antal svenska hostingföretag som du hittar på www.rails.se. Problemet med shared hosting är att du inte är isolerad från de andra användarna på servern vilket innebär att dina program kan drabbas av minnes eller CPU brist. Dessutom brukar shared hosting innebära att man använder FastCGI. FastCGI är den applikationsserver som Rails brukade köras i innan Mongrel dök upp och den har ofta varit instabil och svår att debugga. På www.railshosting.org finns en sammanställning av billig hosting för Rails och där rekommenderas www.hostingrails.com som erbjuder Mongrel hosting. Det finns en uppsjö VPS hostar såsom Rimuhosting, Slicehost, GleSYS i Sverige, Linode, och Media Temple. Den Rails VPS host som verkar ha högst anseende men också är dyrast är Engine Yard. Den är främst ett alternativ för kommersiell hosting och hosting av stora siter.
+
+Ruby trivs bäst i en unixmiljö och RailsMachine använder en linuxdistribution som heter CentOS. Andra populära operativsystem är Ubuntu och FreeBSD. Det viktigaste är nog att man väljer ett operativsystem som man behärskar väl. Om man väljer Ubuntu 6.0.6 Draper kan man använda en Ruby gem som heter deprec som automatiserar hela installationen av en railsserver inklusive rätt Debian paket, MySQL, och Apache.
+
+På RailsMachine använder vi Apache 2.2.3 kompilerad med mod_proxy_balancer som lastbalancerar till ett kluster med två Mongrel servrar. Eftersom det är vanlig lastbalancering över HTTP som Apache gör finns det gott om alternativ, bla. Pound och Nginx. En lovande kommersiell produkt är LiteSpeed, en lättviktig webbserver som är optimerad för performance och som är konfigurationskompatibel med Apache. Om man använder LiteSpeeds Ruby API behöver man heller inte Mongrel längre. Vissa programmerare har funnit att LiteSpeed är snabbare än Apache+Mongrel och att den bättre kan hantera om en railsserver hänger sig eller dör.
+
+Capistrano är ett verktyg av Jamis Buck som har ett elegant API för att köra shell kommandon via SSH på en eller flera servrar parallellt. Capistrano används i första hand för att releasa ny kod till dina produktions servrar. Om något går fel kan du enkelt göra en rollback till den senaste versionen. Capistrano gör dina produktionsservrar lättillgängliga från kommandoraden och är en stor hjälp särskilt om du har många servrar. Vi installerar Capistrano via en gem som heter railsmachine: "gem install railsmachine --include-dependencies". Railsmachine gemen beror på en annan gem som heter mongrel_cluster som konfigurerar om Capistrano till att använda Mongrel istället för FastCGI. Vi antar nu att du installerat MySQL, Apache, och Mongrel på servern, samt att du skapat mongrel cluster config filen, se README för mer info. Om du sedan ställer dig i din railsapplikation och kör "cap --apply-to ." så skapas en konfigurationsfil i config/deploy.rb. För versionshantering har vi lagt in vår källkod i Subversion, efterföljaren till CVS. I deploy.rb ställer vi in vilken server och vilket bibliotek vår applikation ska deployas till. Vi delar även in våra servrar i ett antal roller och definierar sedan tasks som ska exekveras för dessa roller. I vårt fall har vi bara en server så det är relativt enkelt. En task är ingenting annat än ett eller flera shell kommandon som vi vill exekvera på servrarna. Capistrano skeppar med de tasks som man vanligtvis behöver men det är enkelt att skapa egna efter behov. Du kan se vilka tasks som är definierade med "cap show_tasks".
+
+[[[ 
+  TODO Datormagazin: XXX inkludera deploy.tiff här 
+
+  Bildtext: Ett exempel på en konfigurationsfil för Capistrano.
+]]]
+
+Med deploy.rb på plats kan vi sätta upp Capistranos filstruktur på servrarna med "cap setup" och sedan drifta applikationen med "cap deploy". Om något går fel rullar vi tillbaka releasen med "cap rollback". Vad Capistranos deploy task gör är att den checkar ut den senaste versionen av källkoden från Subversion till ett nytt bibliotek på servrarna. Sedan symlänkas servrarna om från den gamla koden till den nya och mongrel startas om. Varje deploy med Capistrano skapar alltså ett helt nytt kodträd från Subversion. Detta innebär att alla filer som inte ska vara versionshanterade, såsom loggfiler, uppladdade bilder, osv. inte får ligga under Rails rootbibliotek eftersom det flyttas bort vid varje release. Istället lägger man sådana filer i ett bibliotek som heter shared och symlänkar in de filerna i en after_update_code task. Här är ett exempel på hur biblioteksstrukturen för vår applikation kan se ut på servern:
+
+current -> releases/20070326093627
+releases
+  20070326093627
+  20070326090549
+  20070318191311
+  20070317153044
+  20070306145053
+  ...
+revisions.log
+shared
+  system
+  log
+  
+Capistrano har en bra callback mekanism som gör att man kan köra kommandon före och efter en task genom att skapa en ny task med prefixet before_ respektive after_. Om du behöver ta din server offline, exempelvis på grund av en migration som är tidskrävande och inte är bakåtkompatibel, så kan du göra det med tasken "disable_web". 
+
+Efter denna snabba genomgång av Capistrano avslutar vi med en kort checklista för driftsättning:
+
+- Se till att du backar upp din databas och eventuella filer i filsystemet åtminstone varje natt och att backup filerna flyttas till en annan server.
+
+- Bli notifierad via email närhelst ett error uppstår på servern med hjälp av tillägget
+  Exception Notifier. Du vill förmodligen också anpassa sidorna som visas för server error och File Not Found
+  i filerna 500.html och 404.html i public biblioteket. Om du vill använda dynamiska sidor istället kan du
+  definiera om metoderna render_404 och render_500 i Exception Notifier tillägget.
+
+- Monitorering. Pinga din site med en service som Pingdom.com eller WebsitePulse.com så att du blir 
+notifierad om den går ner. En god ide kan vara att även vara att pinga servern lokalt och starta om Mongrel
+om den inte svarar.
+
+- Du måste själv ta bort gamla sessioner eftersom Rails inte gör det åt dig. Om du lagrar sessionerna
+i databasen så kan detta vara så enkelt som att sätta upp ett cronjob som tar bort gamla rader från sessions tabellen.
+
+- Rotera loggfiler. Du kan använda LogRotate för detta, se http://wiki.rubyonrails.org/rails/pages/DeploymentTips
+
+- Undvik att skriva passwords i klartext till loggfilen genom att lägga till raden "filter_parameter_logging 'password'" till din ApplicationController.
+
+*** Mer om driftsättning
+- Kapitlet "Deployment and Production" i boken Agile Web Development with Rails, av James Duncan Davidson.
+- Mongrel, Serving, Deploying, and Extending your Ruby Applications (Addison Wesley Shortcut), av Zed Shaw.
+- Att välja hosting: http://nubyonrails.com/articles/2007/02/24/the-host-with-the-most
+- Capistrano: Kör "gem unpack" eller "gemwhich" på paketen capistrano, deprec, mongrel_cluster, och railsmachine och
+  kika på recipes filerna, framförallt filen lib/capistrano/recipes/standard.rb i capistrano gemen.
+  Det finns en inte helt uppdaterad manual på http://manuals.rubyonrails.com/read/book/17
+  samt en O'Reilly Shortcut som heter "Capistrano and the Rails Application Lifecycle"
+- Screencast med Geoffrey Grosenbachsom visar hur man sätter upp Rails på Ubuntu med deprec:
+  http://topfunky.com/clients/peepcode/free-episodes/peepcode-free-deprec.mov
+- Bok att skaffa när den kommer ut: Rails Deployment av Ezra Zygmuntowicz som jobbar på Engine Yard:
+  http://www.pragmaticprogrammer.com/titles/fr_deploy/index.html
+- Mailinglista: http://groups.google.com/group/rubyonrails-deployment
+- Ett program för att debugga minnesläckor i Ruby program:
+  http://scottstuff.net/blog/articles/2006/08/17/memory-leak-profiling-with-rails
+
+###########################################################
+#
+# Performance och skalbarhet
+#
+###########################################################
+
+En klassisk fråga som man får från programmerare, inte minst javaprogrammerare, när man försöker övertyga dem om Rails förträfflighet är någonting i stil med "Ok, Rails låter rätt bra, men hur skalar det egentligen"? Rails skapare David Heinemeier Hanson hade som näst sista slide på en railspresentation förra året just frågan "But does it scale?", varefter den sista sliden gav det uttömmande svaret: "Yes". Detta framkallade förstås stående ovationer bland alla railsanhängare i publiken.
+
+Man brukar säga att programmerare är förtjusta i performance och skalbarhet och ödslar allt för mycket tid på dessa problem innan de uppstått. Ofta vet man inte på förhand hur trafiken och datat för ens applikation kommer att utveckla sig och vilka flaskhalsarna eventuellt kommer att bli. Som den legendariske datavetaren Donald Knuth har sagt - "Premature optimization is the root of all evil".
+
+Det är allmänt erkänt att Ruby är ett relativt långsamt språk. Detta kan komma att ändra sig med JRuby eller YARV, eller någon annan ny version av Ruby. Men i dagsläget är Ruby långsamt. Denna långsamhet är dock i praktiken oftast inte ett så stort problem som man kan tro. Railsbokens författare Dave Thomas brukar påpeka att det bara en relativt liten del av en webbrequest som tillbringas i Ruby kod. Detta beror på att en webbrequest färdas över internet, upp via en nätverksstack i operativsystemet till webbservern, till Rails, till en databas och slutligen hela vägen tillbaka. Även om du snabbar upp en del av din kod med en faktor 10 så har du kanske inte gjort så stor nytta om den koden bara står för någon enstaka procent av den totala svarstiden.
+
+För två år sedan när Rails ännu var relativt ungt fanns det inte så mycket erfarenhet att tillgå av hur Rails skalar för riktigt stora siter, dvs. siter med miljontals dagliga requests och/eller miljontals rader i databasen. Det officiella svaret har länge varit att Rails skalar på samma sätt som PHP, dvs. med en shared nothing arkitektur. Vad man menar med detta är att du kan lägga till godtyckligt många Rails applikationsservrar som trafiken lastbalanseras mellan. När man skalar på det sättet blir dock databasen förr eller senare en flaskhals. När det händer får man leta i sina loggfiler efter tidskrävande SQL och försöka tuna den. Ibland har man loopar som utför en databasfråga för varje iteration - det s.k. N+1 problemet. Detta kan ofta undvikas med :inlude argumentet till find metoden, något som kallas eager loading i Rails. Om du loopar över en tabell där vissa kolumner har mycket data som du inte använder så kan du välja bort dessa kolumner med :select argumentet. MySQL har en speciell loggfil som heter slow query log där du hittar de långsammaste SQL satserna. Du kan använda tillägget query_analyzer för att få explain (dvs. en query plan) på dina MySQL frågor utskrivet i Rails loggfil. Om SQL tuning inte räcker hela vägen kan man även ta till klustring eller, vilket är vanligare, master-slave replikering av databasen. En tänkbar strategi är att skicka databasläsningar till en eller flera slavdatabaser och skicka alla skrivningar till masterdatabasen. Nic Williams har nyligen implementerat denna approach i en gem som heter "Magick Multi Connections".
+
+När man har performance problem tenderar nog ändå cachning att vara den vanligaste utvägen. Ofta använder man memcached - ett externt program som håller datat i en hashmapp i minnet och kan ligga distribuerad på flera servrar. Memcached utvecklades ursprungligen för LiveJournal.com, det är ett väl beprövat program, och det används av många stora siter såsom Wikipedia, SourceForge, och SlashDot. Det finns ett antal tillägg såsom Cached Model och acts_as_cached (eller cache_fu) som gör det relativt enkelt att cacha databasfrågor i Rails.
+
+Rails har inbyggt stöd för att cacha på tre olika nivåer i dina controllers och vyer. Den mest radikala cachningen kallas för page caching och innebär att första gången railsservern svarar på en request så skriver den svaret till en statisk HTML fil under public biblioteket. Nästa gång en request kommer in så hittar webbservern den statiska HTML filen och skickar tillbaka den i svaret istället för att anropa Rails. Med denna metod kan vi alltså uppnå samma performance som en statisk HTML site. Page caching är dock inte applicerbar på sidor som kräver inloggning eller ska visa olika inehåll för olika användare. Ett bra användningsområde för page caching är publika relativt statiska sidor som genererats tex. av ett CMS system. Nästa nivå av cachning är action caching som innebär att du cachar output från en action men att eventuella filter för inloggning osv. fortfarande exekveras. Den tredje och mest granulära formen av cachning är fragment caching där du innesluter de delar i din vy som ska cachas i ett anrop till cache helpern. Man kan välja var de cachade fragmenten ska lagras, tex. i filsystemet, eller i memcached.
+
+[[[
+  TODO Datormagazin: XXX inkludera caching.tiff här 
+
+  Bildtext: Exempel på Rails tre olika cache nivåer - page, action, och fragment.
+]]]
+
+Ett tips för att avlasta särskillt webbloggar är att använda FeedBurner för RSS och Atom feeder. Feedburner cachar din feed åt dig och du låter sedan RSS klienter skicka sina frågor till Feedburner istället för din site. Detta kan ha betydelse om du har tusentals läsare och dessa läsare uppdaterar sina feeds ofta. Det finns en exempelkonfiguration för detta i README filen.
+
+*** Mer om performance och cachning
+- En presentation om tillägget acts_as_cached och Memcached
+  av Chris Wanstrath: http://errtheblog.com/post/27
+  Notera att det nu finns en nyare version av acts_as_cached som
+  heter cache_fu: http://err.lighthouseapp.com/projects/466-plugins
+- Stefan Kaes om vanliga performance problem i Rails:
+  http://www.infoq.com/articles/Rails-Performance
+  RailsBench - skript för att mäta performance:
+  http://railsbench.rubyforge.org/
+- PeepCode avsnitten om cachning och om HttPerf av Geoffrey Grosenbach
+- Rails Analyzer - svarstidsstatistik från dina loggfiler:
+  http://rails-analyzer.rubyforge.org/
+
+###########################################################
+#
+# Avslutande ord
+#
+###########################################################
+
+Nu är vår resa genom Rails underbara värld slut för den här gången. Jag vet att det finns mycket material som vi hoppat över eller kanske gått igenom för hastigt. Förhoppningsvis har vi i alla fall väckt din nyfikenhet och lyckats förmedla vilket fantastiskt verktyg Rails är. Nu återstår bara att önska lycka till med byggandet av dina egna applikationer!

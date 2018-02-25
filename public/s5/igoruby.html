@@ -1,0 +1,944 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>I Go Ruby - Ruby on Rails Sommarläger</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="20061113" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="Peter Marklund" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<!-- embedded styles -->
+<style type="text/css" media="all">
+.imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+#anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+#anim img {position: absolute; top: 42px; left: 24px;}
+img#me01 {top: 0; left: 0;}
+img#me02 {left: 23px;}
+img#me04 {top: 44px;}
+img#me05 {top: 43px;left: 36px;}
+</style>
+<!-- S5 JS -->
+<script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h1>I Go Ruby - Ruby on Rails Sommarläger</h1>
+<h2>Juni 2007</h2>
+</div>
+
+</div>
+<div class="presentation">
+
+<div class="slide">
+<h1>I Go Ruby - Ruby on Rails Sommarläger</h1>
+<h3>Peter Marklund</h3>
+<h4><a href="http://marklunds.com/">marklunds.com</a></h4>
+<p style="text-align: right;">
+<img src="pix/rails1/rails.png" alt="" title="Rails Logo" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Introduktion och Presentationer</h1>
+<ul>
+  <li>Peter Marklund</li>
+  <li>Vilka är ni?</li>
+  <li>Kursens målsättning</li>
+  <li>Kursens format</li>
+  <li>Frågor</li>
+</ul>
+
+
+<!--
+  - Fokus på sådant som i min erfarenhet har varit användbart
+  - Lära sig Ruby ordentligt, men fokus på den del av Ruby som är relevant för railsutveckling
+  - Avbryt för frågor
+  - Olika nivåer men alla ska få ut så mycket som möjligt av kursen utifrån sin nivå
+  - Mindre slides och mer övningar och live demos
+-->
+</div>
+
+<div class="slide">
+<h1>Agenda</h1>
+<div style="font-size: 18px">
+<table>
+  <tr>
+    <th>Måndag</th>
+    <th>Tisdag</th>
+    <th>Onsdag</th>
+    <th>Torsdag</th>
+    <th>Fredag</th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+        <li>Installation</li>
+        <li>Rails filosofi och MVC arkitektur</li>
+        <li>Välj och påbörja en web 2.0 applikation</li>
+        <li>Rails filstruktur, generators, och scripts</li>
+        <li>Migrations</li>        
+      </ul>
+      <hr/>
+      <ul>
+        <li>Introduktion av Ruby</li>
+      </ul>
+  </td>
+  <td>
+    <ul>
+  <li>Active Record</li>
+
+  <li>Routing och Action Controller</li>
+  <li>Action View</li> 
+  </ul>
+  </td>
+  <td>
+    <ul>
+  <li>Testning och TDD</li>
+
+  <li>Active Support</li>
+  <li>Action Mailer</li>
+  <li>AJAX</li>
+  </ul>
+  </td>
+  <td>
+    <ul>
+  <li>Säkerhet</li>
+  <li>Deployment</li>
+  <li>Debugging</li>
+  <li>Plugins och Engines</li>
+  </ul>
+  </td>
+  <td>
+    <ul>
+  <li>REST</li>
+  <li>Agile Web Development</li>
+  <li>Konfiguration</li>
+    </ul>
+  </td>
+  </tr>
+</table>
+</div>
+</div>
+
+<div class="slide">
+  <h1>Installation och Utvecklingsmiljö</h1>
+  <ul>
+    <li>Windows: <a href="http://instantrails.rubyforge.org" target="newWindow">Instant Rails</a></li>
+    <li>Mac OS X:
+      <ul>
+        <li><a href="http://locomotive.raaum.org/" target="newWindow">Locomotive</a></li>
+        <li><a href="http://blog.duncandavidson.com/2006/04/sandboxing_rail.html" target="newWindow">Macports</a></li>
+        <li><a href="http://hivelogic.com/narrative/articles/ruby-rails-mongrel-mysql-osx" target="newWindow">Use the source</a></li>
+      </ul>
+  </li>
+  <li>Editorer: TextMate (OS X), Emacs, Vim, jEdit, RadRails, Aptana, NetBeans</li>
+  </ul>
+<!--
+  - För mer info - se kapitel 3 i railsboken.
+-->  
+  
+</div>
+
+<div class="slide">
+  <h1>Rails Bakgrund</h1>
+  <ul>
+  <li>
+    <a href="http://www.37signals.com" target="newWindow">Jason Fried</a> + <a href="http://www.loudthinking.com/about.html" target="newWindow">David Heinemeier Hanson</a>
+    =&gt; <a href="http://www.basecamphq.com/" target="newWindow">BaseCamp</a>,
+    <a href="http://www.rubyonrails.com">Ruby on Rails</a>
+  </li>  
+  <li>Java, PHP =&gt; Ruby</li>
+  <li><a href="http://flickr.com/photos/46457493@N00/230535210/" target="newWindow">Hottest Hacker on the Earth</a>, Best Hacker of the Year 2005, Jolt Awards</li>
+  <li><a href="https://gettingreal.37signals.com/" target="newWindow">Getting Real</a> - Less is more</li>
+  <li><a href="http://www.pragmaticprogrammer.com/" target="newWindow">Dave Thomas and the Pragmatic Programmers</a></li>
+  </ul>
+<!--
+  - Kapitel 1 i railsboken
+-->
+</div>
+
+<div class="slide">
+<h1>Rails Elevator Pitch</h1>
+<p style="text-align: center">
+  <img src="pix/rails1/overview.gif" alt="" title="Rails blurb" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Rails Filosofi och Styrkor</h1>
+<ul style="font-size: 25px">
+  <li>Ruby - mindre och läsbarare kod, kortare utvecklingstider, enkelt men kraftfullt, ingen kompileringscykel</li>
+  <li>Convention over configuration -&gt; nästan inga configfiler, förutbestämd filstruktur, namnkonventioner -&gt; mindre kod, enklare underhåll</li>
+  <li>Best practices: MVC, DRY, testning</li>
+  <li>Nästan allting i Rails görs med Ruby (SQL och JavaScript abstraheras ofta bort)</li>
+  <li>Bra Ajax stöd. Web services med REST</li>
+  <li>Bra community, verktyg, och dokumentation</li>
+  <li>Rails är extraherat ur en riktig applikation, inte framtaget av en kommitte</li>
+</ul>
+
+<div class="slide">
+<h1>Rails MVC Arkitektur</h1>
+<img src="/s5/mvc.jpg"/>
+<!--
+  - Kapitel 2 i railsboken
+-->
+</div>
+
+<div class="slide">
+<h1>Demo App</h1>
+<ul>
+  <li>MVC - Models, Views, Controllers</li>
+  <li>Namnkonventioner binder ihop requestcykeln</li>
+  <li>Kodgenerator - script/generate, scaffolding, migrations</li>
+  <li>Rails kommandorad - script/console</li>
+  <li>Testning med rake</li>
+  <li>Routes, filter, och callbacks</li>
+  <li>Plugins</li>
+<!--
+  - Målsättning: en snabb genomgång av Rails viktigaste delar med senare fördjupning 
+  - Kapitel 4 i railsboken (Hello World) samt delar av kapitel 5-12
+-->
+</ul>
+
+<div class="slide">
+  <h1>Biblioteksstruktur</h1>
+  <pre style="font-size: 15px">
+    app
+      controllers
+      helpers
+      models
+      views
+        layouts
+    config
+      environment.rb
+      environments
+        development.rb
+        production.rb
+        test.rb
+      routes.rb
+    db
+      database.yml
+      migrations
+    doc
+    lib
+      tasks
+    log
+    public  
+    script
+    test
+    vendor
+      plugins
+      rails
+  </pre>
+<!--
+  - Kapitel 14 i railsboken
+-->
+</div>
+
+<div class="slide">
+  <h1>Rake</h1>  
+  <ul>
+    <li>Rails rake tasks ligger under railties/lib/tasks. Laddas från Rakefile.</li>
+    <li>Lägg egna tasks under lib/tasks</li>
+    <li>Användbara tasks (lista med rake --tasks):
+      <ul>
+        <li>db:migrate</li>
+        <li>db:sessions:create</li>
+        <li>doc:app</li>
+        <li>doc:rails</li>
+        <li>log:clear</li>
+        <li>rails:freeze:gems</li>
+        <li>rails:freeze:edge</li>
+        <li>rails:update</li>
+        <li>:test (default)</li>
+        <li>stats</li>
+      </ul>
+    </li>
+  </ul>
+<!--
+  - Hemsida: http://rake.rubyforge.org/
+  - Kan inte overrida Rake tasks by default:
+    http://www.matthewbass.com/blog/2007/03/07/overriding-existing-rake-tasks/  
+  - Man kan lägga in egna tasks som kör för och efter Rails default tasks:  
+
+desc 'Test all units and functionals - overridden version'
+task :test => :test_hook do
+  puts "Running overridden :test task"
+end
+
+task :test_hook do
+  puts "Running test_hook task"
+end
+
+  - Exempel från railsboken:
+  
+namespace :db do 
+  desc "Prints the migration version" 
+  task :schema_version => :environment do 
+    puts ActiveRecord::Base.connection.select_value('select version from schema_info') 
+  end 
+end 
+
+  - Mer om Rake:
+    - http://www.martinfowler.com/articles/rake.html
+    - Recipe 48 i Boken Rails Recipes
+    
+  :test => db:test:prepare (db:test:clone_structure => [ "db:structure:dump", "db:test:purge" ]),
+  ActiveRecord::Base.schema_format
+-->
+</div>
+
+<div class="slide">
+  <h1>script/*</h1>
+  <ul>
+    <li>about</li>
+    <li>breakpointer</li>
+    <li><b>console</b></li>
+    <li><b>generate</b>/destroy (models, controllers, scaffold, mailers etc.)</li>
+    <li><b>plugin</b> - installera tillägg</li>
+    <li>runner</li>
+    <li><b>server</b></li>
+    <li>script/igoruby/clear_sessions</li>
+  </ul>
+<!--
+  - Alla script kommandon definierade under railties/lib/commands
+  - about - används inte så ofta
+  - Demonstration av breakpointer. Funkar inte med Ruby 1.8.5. Det kommer en bättre debugger i Rails 2.0.
+  - console - Rails kommandorad. Ett bra sätt att experimentera med och debugga kod.
+      reload! - för att ladda om klasser
+      MyController.send(:view_class).new.my_help - testa helpers
+      app.get("/say/hello")
+      app.assert_select
+      app.assert_response
+      etc.  
+  - generate - används för att generera kod och används som utgångspunkt för utveckling. Ta bort
+    koden med destroy.
+  - plugin - används för att installera tillägg. Kan använda -x för att lägga till som svn:external.
+  - runner 
+    ./script/runner 'ActiveRecord::Base.connection.delete("DELETE FROM sessions WHERE updated_at < now() - 48*3600")'
+  - Egna skript som behöver Rails miljön behöver bara göra en require på config/enviornment.rb.
+    Exempel (script/igoruby/clear_sessions):  
+  
+    #!/usr/bin/env ruby
+    require File.join(File.dirname(__FILE__), "..", "..", "config", "environment")
+
+    ActiveRecord::Base.connection.delete("DELETE FROM sessions WHERE updated_at < now() - 48*3600")
+
+  - server
+    ./script/server mongrel -p 3001 -e test
+-->  
+</div>
+
+<div class="slide">
+  <h1>Environments</h1>
+  <ul>
+    <li>Varje environment har:
+      <ul>
+        <li>en databasekoppling i database.yml</li>
+        <li>en konfigurationsfil under config/environments</li>
+      </ul>
+    </li>
+    <li>Det är lätt att sätta upp en egen environment, tex för en staging server</li>
+    <li>Vilken environment Rails körs i bestäms av ENV['RAILS_ENV']</li>
+  </ul>
+<!--
+  - Du kan använda konstanten RAILS_ENV istället för ENV['RAILS_ENV']
+-->
+</div>
+
+<div class="slide">
+  <h1>config/environment.rb</h1>
+  <ul>
+    <li>log level</li>
+    <li>hur sessioner ska lagras</li>
+    <li>schema format</li>
+    <li>pluraliseringsregler</li>
+    <li>Gör require på libraries som du behöver i din applikation</li>
+  </ul>
+<!--
+  - Pluralisering
+    Inflector.inflections do |inflect|
+      inflect.plural /^buss$/, "bussar"
+      inflect.singular "bussar", "buss"
+      inflect.uncountable %w( programmerare )
+    end
+  - Du behöver inte göra require på plugins och klasser under app och lib
+-->
+</div>
+
+<div class="slide">
+  <h1>Load Paths och Auto Loading</h1>
+  <ul>
+    <li>Rubys load path ligger i $: och används vid require</li>
+    <li>Modeller, controllers, vyer, och helpers under app laddas automatiskt</li>
+    <li>Klasser under lib laddas också automatiskt</li>
+    <li>Du kan lägga till load paths i environment.rb</li>
+    <li>Klassnamn och filnamn måste överensstämma</li>
+    <li>Modulnamn (namespaces) och biblioteksnamn måste överensstämma</li>
+  </ul>
+<!--
+  - require MyModule::MyClass laddar första fil 'my_module/my_class.rb' som den hittar i load path
+  - Visa hur en klass under lib laddas automatiskt.
+  - Lägg klassen under extras istället och ändra config.load_paths  
+  - Exempel från action_controller.rb:
+  
+  $:.unshift(File.dirname(__FILE__)) unless
+  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+-->
+</div>
+
+<div class="slide">
+  <h1>Debugging</h1>
+  <ul>
+    <li>raise @object.inspect</li>
+    <li>raise User.instance_methods(false).sort.join(", ")</li>
+    <li>&lt;%= debug @object %&gt;</li>
+    <li>./script/console</li>
+    <li>Loggfilen</li>
+    <li>breakpointer</li>
+  </ul>
+</div>
+
+<div class="slide">
+<h1>Ruby</h1>
+<ul>
+  <li>Interpreterat, reflektivt språk med garbage collection</li>
+  <li>Optimerat för människor snarare än datorer</li>
+  <li>Kraftfullare än Perl, mer objektorienterat än Python</li>
+  <li>Allting är objekt - inga primitiver</li>
+  <li>Stark dynamisk typning</li>
+  <li>Allting i Ruby är:
+    <ul>
+      <li>Assignment - binda namn till objekt</li>
+      <li>Kontrollstrukturer - if/else, while</li>
+      <li>Skicka meddelanden till objekt - metoder</li>
+    </ul>
+  </li>
+</ul>
+<!--
+  - Ruby är ett generellt programmeringsspråk som utvecklades i Japan i mitten av 90-talet
+  - Duck typing: if it walks like a duck, and quacks like a duck, then it is a duck
+    Java: type safety at class/interface level. Ruby: type safety with method granularity
+    Kan använda kind_of? i Ruby.
+  - inga typ deklaration och ingen casting, typer är inte kända förrän vid runtime
+    ger flexibilitet och mindre att skriva för programmeraren, men datatyps deklarationer
+    kan hjälpa till att organisera och förstå ett program
+  - Metoder anropas *alltid* på ett objekt. Det implicita objektet är self.
+  - Klasser är också objekt
+-->
+
+<div class="slide">
+<h1>Att definiera en klass</h1>
+<pre>
+ class Person
+   attr_accessor :first_name, :last_name
+
+   def initialize(first_name, last_name)
+     self.first_name = first_name
+     self.last_name = last_name
+   end
+
+   def say_goodnight
+     puts "#{first_name} says good night"
+   end
+ end
+</pre>
+<!--
+ - attr_accessor makrot (en metod) skapar två metoder
+ - Instansvariabler börjar med @
+ - Implicit objekt vid metodanrop
+ - Att skilja på metodanrop och lokala variabler
+-->
+</div>
+
+<div class="slide">
+  <h1>Metoder</h1>  
+  <ul>
+    <li>Metod identifieras av sitt namn endast - ingen overloading på argument</li>
+    <li>Klassmetoder och instansmetoder</li>
+    <li>public, protected, och private</li>
+    <li>object.send(:method_name)</li>
+    <li>object.respond_to?(:method_name)</li>
+    <li>argument med defaultvärden kommer sist: def my_method(a, options = {})</li>
+    <li>namngivna parametrar med hjälp av Hash</li>
+    <li>object.method([a, b]*) == object.method(a, b)</li>
+  </ul>
+<!--
+  - Man kan utelämna paranteser när man anropar en metod
+  - Private: only same instance, protected: objects of same class and subclasses
+  - Det sist evaluerade uttrycket returneras från metoden (implicit return)
+-->
+</div>
+
+<div class="slide">
+  <h1>Namnkonventioner</h1>  
+  <ul>
+    <li>MyClass</li>
+    <li>method_name</li>
+    <li>MY_CONSTANT = 3.14</li>
+    <li>local_variable = 3.14</li>
+    <li>@instance_variable</li>
+    <li>@@class_variable</li>
+    <li>$global_variable</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Booleanska Uttryck</h1>  
+  <ul>
+    <li>Allt är sant utom nil och false</li>
+    <li>false och true är de enda instanserna av FalseClass respektive TrueClass</li>
+    <li>booleanska uttryck returnerar det senast evaluerade objektet</li>
+    <li>a and b or c</li>
+    <li>a && b || c</li>
+    <li>a = b or c</li>
+    <li>puts a if a = b</li>
+  </ul>
+<!--
+  foo = true
+  bar = nil
+  foo and bar and buz()
+  foo and buz()
+-->
+</div>
+
+<div class="slide">
+  <h1>Assignment</h1>  
+  <ul>
+    <li>a = 1; b = 1</li>
+    <li>a = b = 1</li>
+    <li>a, b = [1, 2]</li>
+    <li>a = b || c</li>
+    <li>Gotcha: a = b and c</li>
+    <li>a ||= b</li>
+  </ul>
+</div>
+
+<div class="slide">
+<h1>Moduler</h1>
+<pre style="font-size: 18px">
+  # Mixins (istället för multipelt arv)
+  module FullName
+    def full_name
+      "#{first_name} #{last_name}"
+    end
+  end
+  
+  class Person
+    include FullName
+  end
+
+  Person.new("Peter", "Marklund").full_name
+
+  # Namespace
+  module MyApp
+    class Person
+      attr_accessor :name
+      def initialize(name)
+        self.name = name
+      end
+    end
+  end
+  
+  MyApp::Person.new("Peter Marklund")
+</pre>
+<!-->
+  - Exempel: active_record.rb
+-->
+</div>
+
+<div class="slide">
+<h1>Allt är objekt</h1>
+<ul>
+  <li>2 + 2 ekvivalent med 2+(2) och 2.send("+", 2) (vi anropar metoden + på objektet 2)</li>
+  <li>2.class, 2.methods, 2.inspect</li>
+  <li>Time.now.at_beginning_of_month</li>
+  <li>20.minutes.until("2006-12-25 12:00:00".to_time)</li>
+  <li>2.hours.ago</li>
+</ul>
+<!--
+class Fixnum
+  def hours
+    self * 3600
+  end
+  
+  def ago(time = Time.now)
+    time - self
+  end
+  
+  alias_method :until, :ago
+end
+-->
+</div>
+<div class="slide">
+  <h1>String</h1>  
+  <ul>
+    <li>"ruby".upcase + " " + "rails".capitalize</li>
+    <li>"time is: #{Time.now}\n second line"</li>
+    <li>'no interpolation "here" #{Time.now}'</li>
+    <li>"ruby".size</li>
+    <li>%Q{"C" och "Java"} == "\"C\" och \"Java\""</li>
+    <li>%q{single 'quoted'} == 'single \'quoted\''</li>
+    <li>
+      <pre>
+        &lt;&lt;-DOC
+          This is
+          a here
+          document #{Time.now}
+        DOC
+      </pre>
+    </li>
+  </ul>
+<!--
+  - Here documents: med strecket kan du indentera slutordet, single quoted
+  - http://www.ruby-doc.org/core/classes/String.html
+  - You can also use %Q[] and %q[]
+-->  
+</div>
+
+<div class="slide">
+  <h1>Array</h1>  
+  <ul>
+    <li>a = ["Ruby", 99, 3.14]</li>
+    <li>a[1] == 99</li>
+    <li>a &lt;&lt; "Rails"</li>
+    <li>['C', 'Java', 'Ruby'] == %w{C Java Ruby}</li>
+    <li>(1..5).each {|x| puts x*x}</li>
+    <li>[1,2,3,4,5].map { |x| x**2 }.join(", ")</li>
+    <li>[1,2,3,4,5].find_all { |x| x % 2 == 0 }</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Hash</h1>  
+  <ul>
+    <li>h = {:lang =&gt; 'Ruby', :framework =&gt; 'Rails'}</li>
+    <li>h[:lang] == 'Ruby'</li>
+    <li>h[:perl] == nil</li>
+    <li>ENV = {"USER"=>"peter", "SHELL"=>"/bin/bash"}</li>
+    <li>ENV.each { |k,v| puts "#{k}: #{v}" }</li>
+  </ul>
+<!--
+  
+-->
+</div>
+
+<div class="slide">
+  <h1>Symboler</h1>
+  <ul>
+    <li>Som strängar fast det finns bara en instans av varje symbol</li>
+    <li>link_to :action =&gt; 'show', :id =&gt; 5</li>
+    <li>:symbol.class == Symbol</li>
+    <li>:symbol == "symbol".to_sym</li>
+    <li>:symbol.to_s == "symbol"</li>
+    <li>:symbol.equal?(:symbol) == true</li>
+    <li>"symbol".equal?("symbol") == false</li>
+  </ul>
+<!--
+  - Effektivare minneshantering, som strängar i Java
+  - The thing named :foo
+-->
+</div>
+
+<div class="slide">
+  <h1>if och while</h1>
+  <pre>
+    if count > 10
+      puts "Try again"
+    elsif tries == 3
+      puts "You lose"
+    else
+      puts "Enter command"
+    end
+    
+    while count < 100
+      puts count
+      count += 1
+    end
+  </pre>
+</div>
+
+<div class="slide">
+  <h1>case</h1>
+  <pre>
+    case x
+    when 0
+    when 1..5
+      puts "Second branch"
+    when 5..10
+      puts "Third branch"
+    else
+      puts "Fourth branch"
+    end
+  </pre>
+</div>
+
+<div class="slide">
+  <h1>Blocks/Closures och Proc objekt</h1>
+  <pre>
+    def invoke_block
+      puts "before block"
+      yield 5
+      puts "after block"
+    end
+
+    name = "Ruby"    
+    invoke_block { |n| puts "In block with #{name}, received #{n}"}
+    
+    my_proc = Proc.new { |n| puts "In proc, received #{n}"}
+    my_proc.call 2
+    invoke_block &my_proc
+  </pre>
+  
+<!--
+  - & konverterar Proc till block och tvärtom
+-->
+</div>
+
+<div class="slide">
+<h1>Användningsområden för Blocks</h1>
+<ul>
+  <li>Iteration
+  <pre>
+   [1,2,3].each { |item| puts item }
+  </pre>
+  </li>
+  <li>Resource Management
+    <pre>
+  file_contents = open(file_name) { |f| f.read }
+    </pre>
+  </li>
+  <li>Callbacks
+    <pre>
+  widget.on_button_press { puts "Got Button Press" }
+    </pre>
+  </li>  
+</ul>
+</div>
+
+<!--
+  Duck typing - no need to inherit from a common interface
+-->
+
+<div class="slide">
+  <h1>Vanliga strängoperationer</h1>  
+  <ul>
+    <li>"  ".blank? == true</li>
+    <li>var.each_with_index { |line, i| puts "#{i}: #{line}" }</li>
+    <li>"abc".scan(/./).each { |char| puts char }</li>
+    <li>"we split words".split.join(", ")</li>
+    <li>"    strip space    ".strip</li>
+    <li>sprintf("value of %s is %.2f", "PI", 3.1416)</li>
+    <li>"I Go Ruby"[2, 2] == "I Go Ruby"[2..4]</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Regular Expressions</h1>
+  <ul>
+    <li>puts "matches" if "Ruby" =~ /^(ruby|python)$/i</li>
+    <li>pattern = "."; Regexp.new(Regexp.escape(pattern))</li>
+    <li>"I Go Ruby"[/(go)/i, 1]</li>
+    <li>"I Go Ruby".gsub(/Ruby/, "Bananas")</li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Exceptions</h1>  
+  <ul>
+    <pre style="font-size: 25px">
+begin 
+  content = load_blog_data(file_name) 
+rescue BlogDataNotFound 
+  STDERR.puts "File #{file_name} not found" 
+rescue BlogDataFormatError 
+  STDERR.puts "Invalid blog data in #{file_name}" 
+rescue Exception => exc 
+  STDERR.puts "Error loading #{file_name}: #{exc.message}"     
+    </pre>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Att anropa externa program</h1>  
+  <ul>
+    <li>system("ls -l")</li>
+    <li>puts `ls -l`</li>
+  </ul>
+<!--
+  - TODO: exit status etc.
+-->
+</div>
+
+<div class="slide">
+<h1>Öppna klasser</h1>
+<pre>
+class Peter
+  def say_hi
+    puts "Hi"
+  end
+end
+
+class Peter
+  alias_method :say_hi_orig, :say_hi
+
+  def say_hi
+    puts "Before say hi"
+    say_hi_orig
+    puts "After say hi"
+  end
+end  
+</pre>
+</div>
+
+<div class="slide">
+  <h1>Dynamisk Ruby och Metaprogrammering</h1>  
+  <ul>
+    <li>method_missing</li>
+    <li>const_missing</li>
+    <li>eval, instance_eval, class_eval</li>
+  </ul>
+<!--
+  - TODO: avsluta den här sliden
+  - Object space
+  - Duck typing
+-->
+</div>
+
+<div class="slide">
+<h1>Ruby vs Java</h1>
+<pre style="font-size: 18px">
+import java.io.*; 
+import java.util.*; 
+
+public class SortWords { 
+  public static void main(String[] args) 
+      throws IOException { 
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
+    List al = new ArrayList(); 
+    String line = null; 
+    while (null != (line = br.readLine())) { 
+      al.add(line); 
+    } 
+    Collections.sort(al); 
+    System.out.println("sorted:"); 
+    for (Iterator it = al.iterator(); it.hasNext();) { 
+      System.out.println(it.next()); 
+    } 
+  } 
+} 
+</pre>
+<!--
+ I Ruby:
+puts readlines.sort.unshift("sorted:\n").join
+-->
+</div>
+
+<div class="slide">
+  <h1>Migrations I</h1>
+  <ul>
+    <li>Ett sätt att hantera databasändringar i ett utvecklingsteam</li>
+    <li>Skapa migration med script/generate migration och kör den med rake db:migrate</li>
+    <li>Migrationfiler är numrerade från ett och uppåt</li>
+    <li>Migrationfiler har en up och en down metod</li>
+    <li>Metoder: create_table, add_column, change_column, rename_column, rename_table, add_index</li>
+    <li>Kolumntyper: binary, boolean, date, datetime, decimal, float, integer, string, text, time, timestamp</li>
+    <li>Inställningar för kolumner: :null, :limit, :default</li>
+  </ul>
+<!--
+  
+-->
+</div>
+
+<div class="slide">
+  <h1>Migrations II</h1>
+  <ul>
+    <li>Exekvera SQL med execute("drop table my_table")</li>
+    <li>Du kan använda ActiveRecord klasser, men tänk på att de kan ändra sig över tiden</li>
+    <li>Foreign keys får man skapa själv</li>
+    <li>Inställningar för tabeller: :primary_key, :id, :force, :options</li>
+    <li>Gör backup av ditt produktionsdata innan du kör migrations</li>
+    <li>Du kan se hela schemat i db/schema.rb eller db/development_structure.sql</li>
+  </ul>
+</div>
+
+
+<div class="slide">
+  <h1>Active Record</h1>
+  <ul>
+    <li></li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Active Record</h1>
+  <ul>
+    <li></li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Sessions</h1>
+  
+  <ul>
+    <li>Undvika att lagra hela Ruby objekt</li>
+    <li>Lagra sessioner i databasen: rake db:sessions:create osv</li>
+  </ul>
+<!--
+  session_management.rb
+      #   # turn off session management for all actions.
+      #   session :off
+      #
+      #   # turn off session management for all actions _except_ foo and bar.
+      #   session :off, :except => %w(foo bar)
+      #
+      #   # turn off session management for only the foo and bar actions.
+      #   session :off, :only => %w(foo bar)
+
+-->
+</div>
+
+
+<div class="slide">
+  <h1>Routing</h1>
+  <ul>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+</div>
+
+<div class="slide">
+  <h1>Rails 2.0</h1>
+  <ul>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+</div>
+
+<!--
+TODO: bilder
+-->
+</div>
+
+</body>
+</html>

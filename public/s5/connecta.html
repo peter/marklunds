@@ -1,0 +1,733 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>Ruby on Rails - en Introduktion</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="20061113" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="Peter Marklund" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/default/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<!-- embedded styles -->
+<style type="text/css" media="all">
+.imgcon {width: 525px; margin: 0 auto; padding: 0; text-align: center;}
+#anim {width: 270px; height: 320px; position: relative; margin-top: 0.5em;}
+#anim img {position: absolute; top: 42px; left: 24px;}
+img#me01 {top: 0; left: 0;}
+img#me02 {left: 23px;}
+img#me04 {top: 44px;}
+img#me05 {top: 43px;left: 36px;}
+</style>
+<!-- S5 JS -->
+<script src="ui/default/slides.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h1>Ruby on Rails - en Introduktion</h1>
+<h2>Connecta &#8226; Maj 9, 2007</h2>
+</div>
+
+</div>
+<div class="presentation">
+
+<div class="slide">
+<h1>Ruby on Rails - en Introduktion</h1>
+<h3>Peter Marklund</h3>
+<h4><a href="http://marklunds.com/">marklunds.com</a></h4>
+<p style="text-align: right;">
+<img src="pix/rails1/rails.png" alt="" title="Rails Logo" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Presentationer</h1>
+<ul>
+  <li><a href="http://marklunds.com/peter/cv" target="newWindow">Peter Marklund</a></li>
+  <li>Connecta</li>
+  <li>Hur mycket vet ni redan om Rails? I vilken typ av projekt har ni tänkt använda Rails?</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Rails Bakgrund</h1>
+<ul>
+  <li>
+    <a href="http://www.37signals.com" target="newWindow">Jason Fried</a> + <a href="http://www.loudthinking.com/about.html" target="newWindow">David Heinemeier Hanson</a>
+    =&gt; <a href="http://www.basecamphq.com/" target="newWindow">BaseCamp</a>,
+    <a href="http://www.rubyonrails.com">Ruby on Rails</a>
+  </li>  
+  <li>Java, PHP =&gt; Ruby</li>
+  <li><a href="http://www.loudthinking.com/lt-files/moir/wired_article.jpg" target="newWindow">Hottest Hacker on the Earth</a>, Best Hacker of the Year 2005, Jolt Awards</li>
+  <li><a href="https://gettingreal.37signals.com/" target="newWindow">Getting Real</a> - Less is more</li>
+  <li><a href="http://www.pragmaticprogrammer.com/" target="newWindow">Dave Thomas and the Pragmatic Programmers</a></li>
+</ul>
+<!--
+  * DHH
+  - In 2004 David was finishing his CS studies, building BaseCamp, and extracting Rails at the same time
+  - David had a background in PHP and Java and wanted something better, something different, that would make him happy
+  - Rails has grown explosively over the last two years and has become a phenomenon with a huge impact on the industry
+  - Jolt award for Rails and the AWR book
+  - The Rails book is one of the best selling programming books in the world. There are maybe 30 or so other Ruby and Rails books about to be published.
+  - David won Best Hacker of the Year 2005 at OSCON from Google and O'Reilly
+
+  * Jason/37Signals
+  - Jason wrote a book on defensive web design. A usability and web design authority.
+  - Signal vs Noise weblog has 30,000 readers daily.
+  - Web2.0 definition: It’s simple focused elegant tools that get out of your way
+    http://www.web20show.com/articles/2006/01/16/web-2-0-show-episode-9-jason-fried
+  - Getting Real (interview with Jason: http://www.itconversations.com/shows/detail471.html):
+    - Less is more, less features, less complex software
+    - Release half a product, not a half assed product. Release early. Let the users determine the features.
+    - Reduce mass to be able to change direction
+    - Feel the hurt - chefs become waiters. Solve your own problems / eat your own dog food.
+    - There is no beta, everything is a work in progress - keep iterating.
+    - Decisions are temporary
+    - It's cool to make mistakes in the open
+    - The UI design drives the programming, not the other way around
+    - Don't worry too much about scaling before it becomes a problem. It's a good problem to have.
+
+  * Dave Thomas and the Pragmatic Programmers
+  - They are thought leaders in the programming community
+  - Have helped document and lend credibility to Rails and Ruby
+  - They are outstanding developers, authors, and teachers
+  - Martin Fowler and many authorities in the Java community have helped push Ruby as well
+-->
+</div>
+
+<div class="slide">
+<h1>Rails Elevator Pitch</h1>
+<p style="text-align: center">
+  <img src="pix/rails1/overview.gif" alt="" title="Rails blurb" />
+</p>
+</div>
+
+<div class="slide">
+<h1>Rails styrkor</h1>
+<ul>
+  <li>Ruby - mindre och läsbarare kod, kortare utvecklingstider, enkelt men kraftfullt, ingen kompileringscykel</li>
+  <li>Convention over configuration -&gt; nästan inga configfiler, förutbestämd filstruktur, namnkonventioner -&gt; mindre kod, enklare underhåll</li>
+  <li>Best practices: MVC, DRY, testning</li>
+  <li>Nästan allting i Rails görs med Ruby (SQL och JavaScript abstraheras ofta bort)</li>
+  <li>Bra Ajax stöd. Web services med REST</li>
+  <li>Bra community, verktyg, och dokumentation</li>
+  <li>Rails är extraherat ur en riktig applikation, inte framtaget av en kommitte</li>
+</ul>
+<!--
+  - Full stack - inkluderar allt du behöver, alla delar är tight integrerade (Struts, Hibernate, Axis)
+  - Opinionated - inte för att göra vad som helst, för att göra rätt saker
+  - Du kan bryta konventioner i Ruby och ändra på allting om du vill, på egen risk...
+  - One-click install på Windows och Mac
+  - Produktiv OR-mappning
+  - Easy does not mean not serious or compromising quality
+
+
+  - Rails programmers get things done and have more fun
+  
+  - Most popular web framework?
+  - Beautiful, readable code
+  - Cleaner and better structured than PHP
+  - It just feels right (Dave Thomas)  
+-->
+</div>
+
+<div class="slide">
+<h1>MVC Request Cycle</h1>
+<img src="/s5/mvc.jpg"/>
+</div>
+
+<div class="slide">
+<h1>Demonstration</h1>
+<ul>
+  <li>MVC - Models, Views, Controllers</li>
+  <li>Namnkonventioner binder ihop requestcykeln</li>
+  <li>Kodgenerator - script/generate, scaffolding, migrations</li>
+  <li>Rails kommandorad - script/console</li>
+  <li>Testning med rake</li>
+  <li>Routes, filter, och callbacks</li>
+  <li>Plugins</li>
+</ul>
+
+<!--
+  *** Connecta demo
+  rails connecta
+  script/generate model Person
+  migration, person class
+  script/console
+  skriv ett unit test
+
+  first:
+    id: 1
+    first_name: Joe
+    last_name: User
+
+  def test_edit
+    u = people(:first)
+    u.first_name = "Jack"
+    u.save!
+    assert_equal("Jack", u.reload.first_name)
+  end
+
+  script/generate scaffold Person
+  validates_presence_of
+  Request cykeln
+  loggfilen
+
+  comments
+  form_for :comment, Comment.new, :url => {:action => "comment"} do |f|
+    hidden_field_tag "id", @person.id
+    f.text_area :body
+    submit_tag "Submit"
+
+  acts_as_ferret :fields => [ :first_name, :last_name, :comments_string ]
+
+  form_tag :action => "list"
+    text_field_tag :q, params[:q]
+    submit_tag "Search"
+    link_to "clear", :action => 'index'
+
+  @people = Person.find_by_contents(params[:q])
+
+  def after_save
+    person.ferret_update
+  end
+  
+  def after_destroy
+    person.ferret_update    
+  end
+
+  
+  *** Rails for Java developers
+  script/generate model Person
+  # first_name, last_name
+  # rake db:migrate
+  script/generate scaffold Person
+  ./script/server
+  rake
+  # validates_presence_of
+    
+  - Varje modellklass ärver från klassen ActiveRecord::Base och dess data lagras i en databastabell vars namn är modelklassens namn i pluralform. Metoder: new, save, find, update_attributes, och destroy
+  
+  - Varje controllerklass ärver från klassen ActionController::Base och varje publik metod kallas för en action. En action anropas av Rails när en request till en viss URL kommer in. En actionmetod interagerar typiskt sett med databasen via en eller flera modellklasser. Sedan skickas ett svar tillbaka med hjälp av en vy. Vyer i Rails ligger under app/views och är HTML templates med inbäddad rubykod. De har ändelsen rhtml och fungerar i princip på samma sätt som PHP eller ASP. Konventionen är att en vy har samma namn som motsvarande action metod men detta kan enkelt överridas. Instansvariabler i Ruby börjar med ett @-tecken och de instansvariabler som du initialiserar i din action kommer att vara tillgängliga i din vy.
+  
+  - Studera CRUD i admin/users controller
+  
+  *** DHH Weblog in 15 minutes:
+  - rails
+  - script/server
+  - mate .
+  - biblioteksstruktur
+  - script/generate controller
+  - render :text => "Hello World"  
+  - database.yml - only configuration
+  - dynamic scaffolding
+  - scaffolding
+  - validates_presence_of
+  - comments
+  - rake testing
+  - script/console
+
+  *** Datormagazin 1
+  rails community
+  mysqladmin create community_development
+  mysqladmin create community_test
+  rake db:migrate
+
+  ./script/plugin install acts_as_authenticated
+  http://agilewebdevelopment.com/plugins
+  ./script/generate authenticated user account
+  # Migrations
+  rake db:migrate
+  # lib/authenticated_system.rb
+  mate .
+  # user.rb, - Inga get/set metoder, - Inga import statements
+  # Jämför med Trails: http://today.java.net/pub/a/today/2005/06/23/trails.html
+  ./script/server
+  # /account/signup
+  # def index User.find(:all)
+
+  rake
+  # Visa tester
+  
+  # layouts
+  # link_to
+
+  # routes.rb
+  # rm public/index.html
+
+  ./script/generate scaffold User 'admin/users'
+  
+  def self.content_columns
+    super.select { |c| c.name =~ /(login|email|created_at) }
+  end
+  
+  # before_filter :login_required
+  # def authorized? user.admin?
+ 
+  # ./script/console - gör användare till admin
+  
+  # ./script/plugin install file_column plugin
+  # sudo gem install rmagick
+  # file_column "image", 
+  # _form.rhtml
+
+  *** Datormagazin 2
+  # hemsida och CSS (stylesheet_link_tag)
+  ./script/generate controller users
+  # def show
+
+  ./script/generate model Comment  
+  # body, user_id, creation_user_id, created_at, updated_at
+  # has_many :comments
+  # belongs_to :user
+  # belongs_to :creation_user, class_name, foreign_key
+  # validates_presence_of user_id, body, creation_user_id
+  ./script/generate controller comments
+  # def create
+  # Ajax med form_remote_tag
+  
+  # Search med acts_as_ferret
+  # ActiveRecord callbacks  
+-->
+</div>
+
+
+<div class="slide">
+<h1>Ruby</h1>
+<ul>
+  <li>Interpreterat, reflektivt språk med garbage collection</li>
+  <li>Optimerat för människor snarare än datorer</li>
+  <li>Kraftfullare än Perl, mer objektorienterat än Python</li>
+  <li>Allting är objekt - inga primitiver</li>
+  <li>Stark dynamisk typning</li>
+  <li>Allting i Ruby är:
+    <ul>
+      <li>Assignment - binda namn till objekt</li>
+      <li>Kontrollstrukturer - if/else, while</li>
+      <li>Skicka meddelanden till objekt - metoder</li>
+    </ul>
+  </li>
+</ul>
+<!--
+  - Ruby är ett generellt programmeringsspråk som utvecklades i Japan i mitten av 90-talet
+  - Duck typing: if it walks like a duck, and quacks like a duck, then it is a duck
+    Java: type safety at class/interface level. Ruby: type safety with method granularity
+    Kan använda kind_of? i Ruby.
+  - inga typ deklaration och ingen casting, typer är inte kända förrän vid runtime
+    ger flexibilitet och mindre att skriva för programmeraren, men datatyps deklarationer
+    kan hjälpa till att organisera och förstå ett program
+-->
+
+
+<div class="slide">
+<h1>Ruby: Att definiera en klass</h1>
+<pre>
+ class Person
+   attr_accessor :first_name, :last_name
+
+   def initialize(first_name, last_name)
+     self.first_name = first_name
+     self.last_name = last_name
+   end
+
+   def say_goodnight
+     puts "#{first_name} says good night"
+   end
+ end
+</pre>
+<!--
+ - attr_accessor makrot (en metod) skapar två metoder
+ - Instansvariabler börjar med @
+ - Implicit objekt vid metodanrop
+-->
+</div>
+
+<div class="slide">
+<h1>Ruby: Modules</h1>
+<pre style="font-size: 18px">
+  # Mixins (istället för multipelt arv)
+  module FullName
+    def full_name
+      "#{first_name} #{last_name}"
+    end
+  end
+  
+  class Person
+    include FullName
+  end
+
+  Person.new("Peter", "Marklund").full_name
+
+  # Namespace
+  module MyApp
+    class Person
+      attr_accessor :name
+      def initialize(name)
+        self.name = name
+      end
+    end
+  end
+  
+  MyApp::Person.new("Peter Marklund")
+</pre>
+
+</div>
+
+
+<div class="slide">
+<h1>Ruby: Allt är objekt</h1>
+<ul>
+  <li>2 + 2 ekvivalent med 2+(2) och 2.send("+", 2) (vi anropar metoden + på objektet 2)</li>
+  <li>2.class, 2.methods, 2.inspect</li>
+  <li>Time.now.at_beginning_of_month</li>
+  <li>20.minutes.until("2006-12-25 12:00:00".to_time)</li>
+  <li>2.hours.ago</li>
+</ul>
+<!--
+class Fixnum
+  def hours
+    self * 3600
+  end
+  
+  def ago(time = Time.now)
+    time - self
+  end
+  
+  alias_method :until, :ago
+end
+-->
+</div>
+
+<div class="slide">
+<h1>Ruby: String, Array, och Hash</h1>
+<ul>
+  <li>lang = "Python"; puts "#{lang.upcase} och Perl"</li>
+  <li>%Q{"C" och "Java"} == "\"C\" och \"Java\""</li>
+  <li>['C', 'Java', 'Ruby'] == %w{C Java Ruby}</li>
+  <li>(1..5).each {|x| puts x*x}</li>
+  <li>[1,2,3,4,5].map { |x| x**2 }.join(", ")</li>
+  <li>[1,2,3,4,5].find_all { |x| x % 2 == 0 }</li>
+  <li>ENV = {"USER"=>"peter", "SHELL"=>"/bin/bash"}</li>
+  <li>ENV.each { |k,v| puts "#{k}: #{v}" }</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Ruby: Öppna klasser</h1>
+<pre>
+class Peter
+  def say_hi
+    puts "Hi"
+  end
+end
+
+class Peter
+  alias_method :say_hi_orig, :say_hi
+
+  def say_hi
+    puts "Before say hi"
+    say_hi_orig
+    puts "After say hi"
+  end
+end  
+</pre>
+</div>
+
+<div class="slide">
+<h1>Ruby: Closures</h1>
+<ul>
+  <li>Iteration
+  <pre>
+   [1,2,3].each { |item| puts item }
+  </pre>
+  </li>
+  <li>Resource Management
+    <pre>
+  file_contents = open(file_name) { |f| f.read }
+    </pre>
+  </li>
+  <li>Callbacks
+    <pre>
+  widget.on_button_press { puts "Got Button Press" }
+    </pre>
+  </li>  
+</ul>
+</div>
+
+<!--
+dynamic:
+  method_missing
+  easy reflection
+  open classes
+  code evaluation
+
+  Duck typing - no need to inherit from a common interface
+  
+  String, Array, Hash
+
+   a = [1, 'cat', 3.14]
+   a[0]
+   a[2] => nil
+   a << 'foobar'
+   a.size
+   a = %w{ ant bee foo }
+
+  inst_section = {
+    :cello => 'string',
+    :clarinet => 'woodwind',
+    :drum => 'percussion',
+    :oboe => 'woodwind',
+    :trumpet => 'brass'
+  }
+  inst_section[:cello]
+  inst_section[:bassoon]
+
+  if, else, while, for foo in list, .each
+
+  get och set metoder
+Mixins
+
+ - Object space
+ - method_missing, const_missing
+ - DSLs
+-->
+</div>
+
+<div class="slide">
+<h1>Ruby vs Java I</h1>
+<pre>
+public class HelloWorld { 
+  public static void main(String []args) { 
+    System.out.println("Hello World"); 
+  } 
+} 
+----------------------------
+puts "Hello World"
+----------------------------
+public class DoNothing { 
+  public static void main(String[] args) { 
+  } 
+} 
+----------------------------
+</pre>
+<!--
+  - Implicit top level receiver object for methods
+  
+-->
+</div>
+
+<div class="slide">
+<h1>Ruby vs Java II</h1>
+<pre style="font-size: 18px">
+import java.io.*; 
+import java.util.*; 
+
+public class SortWords { 
+  public static void main(String[] args) 
+      throws IOException { 
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
+    List al = new ArrayList(); 
+    String line = null; 
+    while (null != (line = br.readLine())) { 
+      al.add(line); 
+    } 
+    Collections.sort(al); 
+    System.out.println("sorted:"); 
+    for (Iterator it = al.iterator(); it.hasNext();) { 
+      System.out.println(it.next()); 
+    } 
+  } 
+} 
+
+--------------------------------
+puts readlines.sort.unshift("sorted:\n").join
+</pre>
+<!-- Visa Ruby programmet på kommandoraden och i IRB -->
+</div>
+
+<div class="slide">
+<h1>Ruby vs Java III</h1>
+<pre style="font-size: 18px">
+class Fib { 
+  public static void main (String args[]) { 
+    int x = 0; 
+    int y = 1; 
+    int total = 1; 
+    for (int i=0; i<10; i++) { 
+      System.out.println(total); 
+      total = x+y; 
+      x = y; 
+      y = total; 
+    } 
+  } 
+}   
+--------------------------------
+x, y = 0, 1 
+10.times do 
+  puts y 
+  x, y = y, x + y 
+end 
+</pre>
+</div>
+
+<div class="slide">
+<h1>Ruby vs Java IV</h1>
+<pre style="font-size: 18px">
+public static Object create(Class c, String value)
+  throws Exception
+{
+  Constructor ctor = c.getConstructor(
+    new Class[] { String.class } );
+  return ctor.newInstance(
+    new Object[] { "Hello" } );
+}
+
+public static void main (String args[])
+  throws Exception
+{
+  Greeting g =
+    (Greeting) create(Greeting.class, "Hello");
+  g.show();	
+}
+--------------------------------
+def create(klass, value)
+  klass.new(value)
+end
+
+g = create(Greeting, "Hello")
+g.show
+</pre>
+</div>
+
+<div class="slide">
+<h1>JRuby</h1>
+<ul>
+  <li>Version 1.0 är nära</li>
+  <li>Sponsras av Sun</li>
+  <li>Snart snabbare än C versionen?</li>
+  <li>Deploya Rails som en WAR fil till din Java miljö</li>
+  <li>ThoughtWorks ska launcha produkten
+    <a href="http://studios.thoughtworks.com/mingle-project-intelligence">Mingle</a> på JRuby i Juni</a>
+</ul>
+<!--
+  - Öppnar upp fler plattformar
+-->
+</div>
+
+<div class="slide">
+<h1>Ruby och .NET</h1>
+<ul>
+  <li><a href="http://www.infoq.com/news/2007/04/ms-ironruby">IronRuby</a>
+    - en Ruby implementation för Common Language Runtime (CLR).
+  Inte redo för prime time men värd att hålla ett öga på</li>
+  <li><a href="http://www.sapphiresteel.com/">Ruby in Steel</a> - Ruby i Visual Studio </li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Frågor</h1>
+<ul>
+  <li>Varför inte Java On Rails?</li>
+  <li>För "normalt" webprojekt med bokning, sidor, backoffice.</li>
+  <li>Sparar man tid ? Hur mycket ? 20% ?</li>
+  <li>När väljer man Java, när Rails ?</li>
+  <li>Performance/skalbarhet RoR ?</li>
+  <li>Vem använder RoR i Stockholm?</li>
+  <li>Hur hanterar man stora projekt när det inte finns refactoring?</li>
+  <li>Enterprise deployment (JRuby, ear)</li>
+  <li>Ruby i "kritiska system" (pengar/medicinteknik)</li>
+  <li>Annat än webapplikationer?</li>
+  <li>Hanteras transaktioner i Rails?</li>
+</ul>
+<!--
+  - Svenska projekt:
+    Newsdesk
+    Karolinska
+    Voxway
+    Streamio
+    Snowmen solutions
+    Martin Alexandersons startup
+    Valtech - mobile casting
+    OM-gruppen
+  
+  - Javas styrkor:
+    - Two phase commits
+    - OR mappning
+    - Distribuerade objekt
+    - SOAP
+    - XML schema
+    - IDE support, is catching up
+  - No silver bullet - Brooks, accidental vs essential complexity
+  - Pilotprojekt, hitta ett lågriskprojekt, en prototyp
+  - Använda Ruby för skripting, ersättare för Perl
+  - Det går utmärkt att använda ActiveRecord utan Rails
+-->
+</div>
+
+<div class="slide">
+<h1>Case Study: Ruby on Rails på Voxway</h1>
+<ul>
+  <li>VoiceXML</li>
+  <li>Driftsättning med Capistrano</li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Var kan man lära sig mer?</h1>
+<ul>
+  <li>Böcker:
+    <ul> 
+    <li><a href="http://www.pragmaticprogrammer.com/titles/ruby/index.html">Ruby</a> (The Pickaxe)</li>
+    <li><a href="http://www.pragmaticprogrammer.com/titles/rails/index.html">Rails</a> (AWR)</li>
+    <li><a href="http://www.pragmaticprogrammer.com/titles/fr_r4j/index.html">Rails for Java Developers</a></li>
+    <li><a href="http://www.pragmaticprogrammer.com/titles/fr_eir/index.html">Enterprise Integration with Ruby</a></li>
+    <li><a href="http://www.pragmaticprogrammer.com/titles/fr_j2r/">From Java to Ruby - Things Every Manager Should Know</a></li>
+    </ul>
+  </li>
+  <li><a href="http://www.peepcode.com">PeepCode Screencasts (videos)</a>
+  <li><a href="http://rails.se">rails.se</a> - svensk IRC och mailinglista</li>
+  <li><a href="http://groups.google.com/group/rubyonrails-core">Core mailinglist</a>,
+    <a href="http://groups.google.com/group/rubyonrails-deployment/about">deployment mailinglist</a></li>
+  <li>Rails sommarläger i juni - <a href="http://www.igoruby.com">I Go Ruby</a></li>
+</ul>
+</div>
+
+<div class="slide">
+<h1>Referenser</h1>
+<ul>
+  <li><a href="http://www.ruby-lang.org">Ruby hemsida</a></li>
+  <li><a href="http://www.rubyonrails.com">Ruby on Rails hemsida</a></li>
+  <li><a href="http://www.ruby-lang.org/en/documentation/ruby-from-other-languages/">Ruby from other languages</a></li>
+  <li>
+    <a href="http://www.theserverside.com/news/thread.tss?thread_id=41622">
+      10 Things Java should steal from Ruby (Bruce Tate)
+    </a>
+  </li>
+  <li>
+    <a href="http://onestepback.org/articles/10things/">
+      10 Things Every Java Programmer Should Know About Ruby (Jim Weirich)
+    </a>
+  </li>
+</ul>
+</div>
+
+</div>
+
+</body>
+</html>

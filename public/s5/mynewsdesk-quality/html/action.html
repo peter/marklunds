@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>MyNewsdesk Product Quality</title>
+<!-- metadata -->
+<meta name="generator" content="S5" />
+<meta name="version" content="S5 1.1" />
+<meta name="presdate" content="April 26, 2010" />
+<meta name="author" content="Peter Marklund" />
+<meta name="company" content="MyNewsdesk" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<link rel="stylesheet" href="../assets/ui/default/slides.css" type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="../assets/ui/default/outline.css" type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="../assets/stylesheets/print.css" type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="../assets/ui/default/opera.css" type="text/css" media="projection" id="operaFix" />
+<link rel="stylesheet" href="../assets/stylesheets/pressie.css" type="text/css" />
+
+<!-- S5 JS -->
+<script src="../assets/ui/default/slides.js" type="text/javascript"></script>
+
+<!-- Syntax Highlighter -->
+<link rel="stylesheet"  href="../assets/dp.SyntaxHighlighter/Styles/SyntaxHighlighter.css"></link>
+
+<link rel="stylesheet"  href="../assets/stylesheets/custom.css"></link>
+
+</head>
+<body>
+
+<div class="layout">
+<div id="controls"><!-- DO NOT EDIT --></div>
+<div id="currentSlide"><!-- DO NOT EDIT --></div>
+<div id="header"></div>
+<div id="footer">
+<h2>Copyright © 2010 Peter Marklund</h2>
+</div>
+
+</div>
+
+
+<div class="presentation">
+  
+<div class="slide"><h1>Action!</h1>
+</div>
+<div class="slide"><h1>Health Checkup</h1>
+<ul>
+	<li>Good foundation</li>
+	<li>Bigger &#8211; muscle and fat</li>
+	<li>Overweight</li>
+	<li>Complex</li>
+	<li>Fragile</li>
+</ul>
+</div>
+<div class="slide"><h1>Weighing In At</h1>
+<pre>
+Code LOC: 16008     Test LOC: 8868     Code to Test Ratio: 1:0.6
+
+28 vendor/gems
+
+37 vendor/plugins
+</pre>
+</div>
+<div class="slide"><h1>Where the Fat is</h1>
+<ul>
+	<li>lib</li>
+	<li>test</li>
+	<li>vendor/plugins</li>
+	<li>vendor/gems</li>
+</ul>
+</div>
+<div class="slide"><h1>We Need More Of</h1>
+<ul>
+	<li>Controllers</li>
+	<li>Classes</li>
+	<li>Namespaces (modules)</li>
+	<li>Tests</li>
+</ul>
+</div>
+<div class="slide"><h1>We Need Less Of</h1>
+<ul>
+	<li><span class="caps">LOC</span></li>
+	<li>Plugins and gems</li>
+	<li>Duplicated code</li>
+	<li>Overly long methods and classes</li>
+</ul>
+</div>
+<div class="slide"><h1>Convetions, Idioms, and Consistency</h1>
+<ul>
+	<li>Always make <span class="caps">HTTP</span> requests the same way</li>
+	<li>Always parse <span class="caps">JSON</span> the same way</li>
+	<li>Always implement state machines the same way</li>
+	<li>Always do pagination the same way</li>
+</ul>
+</div>
+<div class="slide"><h1>Library Inventory</h1>
+<pre style="font-size: 50%">
+At least two different JSON parsers
+paperclip
+aasm only used in one place (Payment)
+active_merchant - en promille används
+activerecord_symbolize - borderline, but clean, simple, very small, and code reviewed
+acts-as-taggable-on - better to do it ourselves?
+acts_as_bitfield - hacks ActiveRecord in a bad way, ugly SQL conditions, not human readable column values. Flexible schema.
+acts_as_tree - klarat oss utan
+acts_as_versioned - hmm
+app_config - klarat oss utan
+assert_select - die!
+cachable_model - it's magic
+classic_pagination - die!
+concerns - we don't need it
+detect_language - not used?
+fetcher - ? MailFetcher ?
+git_plugins - not used
+javascript_test - ok, but we're not using it
+localized_country_select - not needed
+rails-footnotes - ok, but not used
+rspec-caching-test-plugin - die!
+selenium-on-rails - ok, but not used
+swedish_pluralize - die!
+translate - ok, but not used
+userstamp - hacks ActiveRecord, not needed, but ok, at least it's very simple
+</pre>
+</div>
+<div class="slide"><h1>Canibalize Huge Controllers</h1>
+<pre>
+359 app/controllers/my_newsdesk_controller.rb (32 metthods)
+
+627 app/controllers/admin/media_controller.rb (65 methods)
+
+893 app/controllers/publish/home_controller.rb (70 methods)
+
+1391 app/controllers/admin/source_controller.rb (119 methods)
+</pre>
+</div>
+<div class="slide"><h1>Long Method</h1>
+<div class="code-small">
+<pre name="code" class="ruby:nogutter:nocontrols">def find_by_sql(sql)
+  if model_cache.enabled? &amp;&amp; cachable = model_cache.parse_sql(sanitize_sql(sql))
+    if cachable[:column] == "id"
+      return model_cache.fetch(cachable[:value]) { super(sql) }
+    else
+      if id = model_cache.read_lookup_id(cachable[:column], cachable[:value])
+        return [find(id)]
+      else
+        objects = super(sql)
+        # What if record doesn't exist? Well, we can't cache that since that introduces a dependency on all records.
+        id = objects.first.try(:id)
+        model_cache.store_id_lookup(cachable[:column], cachable[:value], id) if id &amp;&amp; objects.size == 1
+        return objects
+      end
+    end
+  else
+    return super(sql)
+  end
+end
+</pre><p></div><div class="codeurl"><a href="txmt://open?url=file:///Users/peter/src/newsdesk-quality/code/cachable_model.rb">code/cachable_model.rb</a></div></p>
+</div>
+<div class="slide"><h1>Shorter Method</h1>
+<div class="code-normal">
+<pre name="code" class="ruby:nogutter:nocontrols">def find_by_sql(sql)
+  finder = CachableModel::Finder.new(self, sanitize_sql(sql))
+  if finder.is_cached?
+    finder.cached_objects
+  else
+    objects = super(sql)
+    finder.store_in_cache(objects) if finder.can_cache?(objects)
+    objects
+  end
+end
+</pre><p></div><div class="codeurl"><a href="txmt://open?url=file:///Users/peter/src/newsdesk-quality/code/cachable_model.rb">code/cachable_model.rb</a></div></p>
+</div>
+<div class="slide"><h1>Two Stories of Complexity</h1>
+<ul>
+	<li>Site.site_prefix</li>
+	<li>attr_protected patch</li>
+</ul>
+</div>
+<div class="slide"><h1>Metrics</h1>
+<ul>
+	<li>Flay &#8211; duplication</li>
+	<li>Flog &#8211; code complexity</li>
+	<li>Rcov &#8211; code coverage</li>
+	<li>Reek &#8211; code smell detection</li>
+	<li>Roodi, Saikuro &#8211; method complexity</li>
+</ul>
+</div>
+<div class="slide"><h1>New Areas of Testing</h1>
+<ul>
+	<li>integration testing</li>
+	<li><span class="caps">HTML</span> validation</li>
+</ul>
+</div>
+<div class="slide"><h1>Simplifications</h1>
+<ul>
+	<li>SiteFilter</li>
+	<li>Consolidate lib, app/models, and app/concerns</li>
+	<li>Standard layout</li>
+</ul>
+</div>
+<div class="slide"><h1>Quality Over Time Graph</h1>
+<ul>
+	<li><span class="caps">TODO</span></li>
+</ul>
+</div>
+<div class="slide"><h1>Something Else to be Excited About</h1>
+<div style="font-size: 300%; text-align: center; font-weight: bold">
+<p>Rails 3!</p>
+</div></div>
+</div>
+
+<!-- Syntax Highlighter -->
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shCore.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCSharp.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushPhp.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushJScript.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushJava.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushVb.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushSql.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushXml.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushDelphi.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushPython.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushRuby.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCss.js"></script>
+<script class="javascript" src="../assets/dp.SyntaxHighlighter/Scripts/shBrushCpp.js"></script>
+<script language="javascript">
+dp.SyntaxHighlighter.ClipboardSwf = '/flash/clipboard.swf';
+dp.SyntaxHighlighter.HighlightAll('code');
+</script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ska jag byta till ISK?</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
+      #result {
+        display: none;
+        margin-top: 20px;
+      }
+
+      #isk_profit {
+        font-weight: bold;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.17.1/ramda.min.js"></script>
+    <script type="text/javascript">
+
+      ////////////////////////////////////////////////
+      // TYPES
+      ////////////////////////////////////////////////
+
+      var typeOf = function(value) {
+        var type = typeof value;
+        if (type === 'object') {
+          if (value === null) {
+            type = 'null';
+          } else if (value === undefined) {
+            type = 'undefined';
+          } else if ((typeof value.length === 'number') && toString.call(value) === '[object Array]') {
+            type = 'array';
+          } else if (toString.call(value) === '[object Date]') {
+            type = 'date';
+          } else if (toString.call(value) === '[object RegExp]') {
+            type = 'regexp';
+          }
+        }
+        return type;
+      };
+
+      var isType = function(typeName, value) {
+        var custom = TYPES[typeName];
+        if (custom) {
+          if (typeOf(custom) === 'string') {
+            return isType(custom, value);
+          } else {
+            return (custom.type == null || isType(custom.type, value)) && (custom.validate == null || custom.validate(value));
+          }
+        } else {
+          return typeOf(value) === typeName;
+        }
+      };
+
+      var nullifyEmptyString = function(value) {
+        if (typeOf(value) === 'string' && value.trim() === '') {
+          return null;
+        } else {
+          return value;
+        }
+      };
+
+      var argKey = function(name) {
+        if (name.indexOf('?') === (name.length-1)) {
+          return name.substring(0, name.length-1);
+        } else {
+          return name;
+        }
+      };
+
+      var processArgs = function(types, _args) {
+        _args = _args || {};
+        var args = {};
+        Object.keys(types).forEach(function(name) {
+          var optional = name.indexOf('?') === (name.length-1);
+          var key = argKey(name),
+              type = types[name],
+              defaultValue = (TYPES[type] && TYPES[type].default),
+              base = baseType(type),
+              value = nullifyEmptyString(_args[key]),
+              checkType = !(optional && value == null);
+          if (typeOf(value) === 'string' && value != null && PARSE_FUNCTIONS[base]) {
+            value = PARSE_FUNCTIONS[base](value);
+          }
+          if (checkType && !isType(type, value)) {
+            throw new Error("Argument " + name + " with value " + value + " is not of type " + JSON.stringify(type));
+          }
+          args[key] = value || defaultValue;
+        });
+        return args;
+      };
+
+      var _typedFunction = function(types, fn) {
+        return function(_args) {
+          if (arguments.length > 1) {
+            throw new Error("Function should be invoked with one argument but was invoked with " + arguments.length + ": " + JSON.stringify(arguments));
+          }
+          return fn(processArgs(types, _args));
+        };
+      };
+
+      var baseType = function(type) {
+        var typeName = (typeOf(type) === 'string') ? type : type.type;
+        if (TYPES[typeName]) {
+          return baseType(TYPES[typeName])
+        } else {
+          return typeName;
+        }
+      };
+
+      var PARSE_FUNCTIONS = {
+        'integer': parseInt,
+        'number': parseFloat
+      };
+
+      var ARG_TYPES = {
+        startAmount: 'posNumber',
+        untaxed: 'posNumber',
+        years: 'posInteger',
+        interest: 'interest',
+        yearlyYield: 'yearlyYield',
+        tax: 'tax'
+      };
+
+      var typedFunction = function(argNames, fn) {
+        var argTypes = argNames.reduce(function(types, name) {
+          types[name] = ARG_TYPES[argKey(name)];
+          return types;
+        }, {});
+        return _typedFunction(argTypes, fn);
+      };
+
+      var TYPES = {
+        posNumber: {
+          validate: function(v) { return v > 0; },
+          type: 'number'
+        },
+        integer: {
+          validate: function(v) { return isFinite(v) && Math.floor(v) === v; },
+          type: 'number'
+        },
+        posInteger: {
+          validate: function(v) { return v > 0; },
+          type: 'integer'
+        },
+        yieldFactor: {
+          validate: function(v) { return v > 1.0; },
+          type: 'number'
+        },
+        interest: {
+          type: 'yieldFactor',
+          default: 1.03
+        },
+        yearlyYield: {
+          type: 'yieldFactor',
+          default: 1.08
+        },
+        tax: {
+          type: 'number',
+          validate: function(v) { return v > 0 && v < 1.0; },
+          default: 0.3
+        }
+      };
+
+      ////////////////////////////////////////////////
+      // CALCULATION
+      ////////////////////////////////////////////////
+
+      var totalYield = typedFunction(['years', 'yearlyYield?'], function(args) {
+        return Math.pow(args.yearlyYield, args.years);
+      });
+
+      var account = typedFunction(['startAmount', 'untaxed', 'years', 'yearlyYield?', 'tax?'], function(args) {
+        var grossAmount = args.startAmount * totalYield(args);
+        var profit = grossAmount - (args.startAmount - args.untaxed);
+        var netAmount = grossAmount - (profit * args.tax);
+        return netAmount;
+      });
+
+      var isk = typedFunction(['startAmount', 'untaxed', 'years', 'interest?', 'yearlyYield?', 'tax?'], function(args) {
+        var iskStartAmount = args.startAmount - (args.untaxed * args.tax);
+        var grossAmount = iskStartAmount * totalYield(args);
+        var averageAmount = (iskStartAmount + grossAmount) / 2;
+        var iskTax = averageAmount * (args.interest - 1) * args.tax * args.years;
+        var netAmount = grossAmount - iskTax;
+        return netAmount;
+      });
+
+      var calculate = typedFunction(['startAmount', 'untaxed', 'years', 'interest?', 'yearlyYield?'], function(args) {
+        var result = {account: account(args), isk: isk(args)};
+        result.isk_profit = result.isk - result.account;
+        return result;
+      });
+
+      ////////////////////////////////////////////////
+      // FORM
+      ////////////////////////////////////////////////
+
+      var formData = function(form) {
+        return $(form).serializeArray().reduce(function(obj, field) {
+          obj[field.name] = field.value;
+          return obj;
+        }, {});
+      };
+
+      var round = function(value) {
+        return Math.round(value * 100) / 100;
+      };
+
+      $(function() {
+        $('#interest').val(TYPES.interest.default);
+        $('#yearlyYield').val(TYPES.yearlyYield.default);
+        $('#isk_form').submit(function(event) {
+          event.preventDefault();
+          var result = calculate(formData(this));
+          $('#result').show();
+          $('#account').html(round(result.account));
+          $('#isk').html(round(result.isk));
+          $('#isk_profit').html(round(result.isk_profit));
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <h1>Ska jag byta till ISK?</h1>
+
+      <p>
+        <strong>TIPS:</strong> läs på om ISK och testa en alternativ kalkylator på <a href="http://rikatillsammans.se/verktyg/behalla-depa-eller-byta-till-isk-kalkylator">rikatillsammans.se</a>
+      </p>
+
+      <form id="isk_form">
+        <div class="form-group">
+          <label for="startAmount">Nuvarande värde på depå</label>
+          <input class="form-control" type="text" name="startAmount" id="startAmount">
+        </div>
+
+        <div class="form-group">
+          <label for="untaxed">Obeskattad vinst</label>
+          <input type="text" class="form-control" name="untaxed" id="untaxed">
+        </div>
+
+        <div class="form-group">
+          <label for="years">Antal år till framtida försäljning</label>
+          <input type="text" class="form-control" name="years" id="years">
+        </div>
+
+        <div class="form-group">
+          <label for="yearlyYield">Beräknad årlig genomsnittlig avkastning</label>
+          <input type="text" class="form-control" name="yearlyYield" id="yearlyYield">
+        </div>
+
+        <div class="form-group">
+          <label for="interest">Genomsnittlig statslåneränta</label>
+          <input type="text" class="form-control" name="interest" id="interest">
+        </div>
+
+        <input type="submit" value="Räkna ut">
+      </form>
+
+      <div id="result">
+        <div>
+          Konto: <span id="account"></span>
+        </div>
+
+        <div>
+          ISK: <span id="isk"></span>
+        </div>
+
+        <div>
+          ISK vinst: <span id="isk_profit"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

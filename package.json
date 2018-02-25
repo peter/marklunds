@@ -1,0 +1,11 @@
+{
+  "name": "marklunds",
+  "version": "1.0.0",
+  "description": "Node.js web app for www.marklunds.com",
+  "main": "app/index.js",
+  "scripts": {
+    "start": "NODE_PATH=. node app/index.js"
+  },
+  "author": "Peter Marklund",
+  "license": "ISC"
+}
