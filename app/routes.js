@@ -11,6 +11,26 @@ const routesList = [
     method: 'get',
     path: '/peter',
     handler: peter.list
+  },
+  {
+    method: 'get',
+    path: '/articles/one/:id',
+    handler: peter.show
+  },
+  {
+    method: 'get',
+    path: '/feed',
+    handler: peter.feed
+  },
+  {
+    method: 'get',
+    path: '/peter/cv',
+    handler: peter.cv
+  },
+  {
+    method: 'get',
+    path: '/peter/contact',
+    handler: peter.contact
   }
 ]
 

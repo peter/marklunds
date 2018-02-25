@@ -11,7 +11,7 @@
 </p>
 
 <% posts.forEach(post => { %>
-	<% include('posts/_post', {post, showCommentsForm: false}) %>
+	<%=raw template('posts/_post', {post, showCommentsForm: false}) %>
 <% }) %>
 
 <% if (pagination.nextPage) { %>

@@ -1,32 +1,10 @@
-// By John Resig
-// function tmpl(str, data){
-//   const fn = new Function("obj",
-//     "var p=[],print=function(){p.push.apply(p,arguments);};" +
-//
-//     // Introduce the data as local variables using with(){}
-//     "with(obj){p.push('" +
-//
-//     // Convert the template into pure JavaScript
-//     str
-//       .replace(/[\r\t\n]/g, " ")
-//       .split("<%").join("\t")
-//       .replace(/((^|%>)[^\t]*)'/g, "$1\r")
-//       .replace(/\t=(.*?)%>/g, "',$1,'")
-//       .split("\t").join("');")
-//       .split("%>").join("p.push('")
-//       .split("\r").join("\\'")
-//     + "');}return p.join('');")
-//
-//   // basic currying
-//   return data ? fn(data) : fn;
-// }
-
-// Alternative template implementation:
-// http://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
-
+// Code borrowed and slightly modified from:
 // https://github.com/cho45/micro-template.js/blob/master/lib/micro-template.js
+// Original implementation by John Resig:
+// https://johnresig.com/blog/javascript-micro-templating/
 function template (id, data) {
 	var me = arguments.callee;
+	data = Object.assign({}, data, {template}) // Allows nested templates (includes)
 	if (!me.cache[id]) me.cache[id] = (function () {
 		var name = id, string = /^[\w_\/-]+$/.test(id) ? me.get(id): (name = 'template(string)', id); // no warnings
 		var line = 1, body = (
@@ -61,43 +39,21 @@ template.get = function (id) {
   return require('fs').readFileSync(TEMPLATE_DIR + '/' + id + '.html', 'utf-8')
 }
 
-/**
- * Extended template function:
- *   requires: basic template() function
- *   provides:
- *     include(id)
- *     wrapper(id, function () {})
- */
-function extended (id, data) {
-	var fun = function (data) {
-		data.include = function (name, args) {
-			var stash = {};
-			for (var key in template.context.stash) if (template.context.stash.hasOwnProperty(key)) {
-				stash[key] = template.context.stash[key];
-			}
-			if (args) for (var key in args) if (args.hasOwnProperty(key)) {
-				stash[key] = args[key];
-			}
-			var context = template.context;
-			context.ret += template(name, stash);
-			template.context = context;
-		};
-
-		data.wrapper = function (name, fun) {
-			var current = template.context.ret;
-			template.context.ret = '';
-			fun.apply(template.context);
-			var content = template.context.ret;
-			var orig_content = template.context.stash.content;
-			template.context.stash.content = content;
-			template.context.ret = current + template(name, template.context.stash);
-			template.context.stash.content = orig_content;
-		};
-
-		return template(id, data);
-	};
-
-	return data ? fun(data) : fun;
+function withLayout(id, data, layout) {
+	const content = template(id, data || {})
+	return template(layout, {content})
 }
 
-module.exports = extended
+function render(res, id, data, options) {
+	data = data || {}
+	options = Object.assign({layout: 'layout'}, options)
+	const body = options.layout ? withLayout(id, data, options.layout) : template(id, data)
+	res.writeHead(200, {'Content-Type': 'text/html'})
+  res.end(body)
+}
+
+module.exports = {
+	template,
+	withLayout,
+	render
+}

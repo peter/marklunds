@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet href="/stylesheets/rss.css" type="text/css"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+  <channel>
+    <title>Peter on Software</title>
+    <link>http://marklunds.com</link>
+    <language>en-us</language>
+    <ttl>40</ttl>
+    <description>Lessons Learned in software and web development. By Peter Marklund.</description>
+
+    {% for post in posts %}
+      <item>
+        <title>{{post.subject}}</title>
+        <description>{{post.body}}</description>
+        <pubDate>{{post.created_at|rss-date}}</pubDate>
+        <guid>http://marklunds.com/articles/one/{{post.id}}</guid>
+        <link>http://marklunds.com/articles/one/{{post.id}}</link>
+      </item>
+    {% endfor %}
+
+  </channel>
+</rss>

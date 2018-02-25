@@ -1,11 +1,11 @@
-<%= include('posts/_post', {post}) %}
+<%=raw template('posts/_post', {post, showCommentsForm: true}) %>
 
 <% if (comments) { %>
 	<h3 class="comment_header"><a name="comments">Comments</a></h3>
 
 	<div id="comment_list">
 	  <% comments.forEach(comment => { %>
-			<%= include('comments/_comment', {comment}) %>
+			<%=raw template('comments/_comment', {comment}) %>
 	  <% }) %>
 	</div>
 <% } %>
