@@ -1,0 +1,31 @@
+<div class="timestamp"><%= post.created_at %></div>
+
+<h2 class="post_header">
+  <a href="/articles/one/<%= post.id %>"><%= post.subject %></a>
+</h2>
+
+<div class="post_body">
+  <%=raw post.body %>
+</div>
+
+<% if (showCommentsForm) { %>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES * * */
+    var disqus_shortname = 'peteronsoftware';
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+<% } %>
+
+<% if (post.comments_count) { %>
+	<p>
+		<a href="/articles/one/{{post.id}}">{{post.comments_count}} comment(s)</a>
+	</p>
+<% } %>

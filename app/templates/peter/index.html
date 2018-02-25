@@ -1,0 +1,21 @@
+<h2 style="margin-top: 0">Peter on Software</h2>
+
+<p>
+  <i>Lessons Learned in software and web development</i>
+  <a href="http://feeds2.feedburner.com/petermarklund" title="Subscribe to Peter on Software" rel="alternate" type="application/rss+xml">
+    <img src="/images/rss_icon.gif" alt="" style="border:0"/>
+  </a>
+  <a href="http://feeds2.feedburner.com/petermarklund" title="Subscribe to Peter on Software" rel="alternate" type="application/rss+xml">
+    Subscribe
+  </a>
+</p>
+
+<% posts.forEach(post => { %>
+	<% include('posts/_post', {post, showCommentsForm: false}) %>
+<% }) %>
+
+<% if (pagination.nextPage) { %>
+	<p>
+		&raquo; <a href="/peter?page={{pagination.next-page}}">Next page</a>
+	</p>
+<% } %>
