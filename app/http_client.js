@@ -48,6 +48,24 @@ function get(url, options = {}) {
   })
 }
 
+function getWithRetry(url, options = {}) {
+  options.attempt = options.attempt || 1
+  return get(url, options)
+    .catch((result) => {
+      if (u.nil(result.status) || isServerError(result.status)) {
+        const retry = (options.attempt && options.attempt < parseInt(config.HTTP_RETRIES))
+        console.error(`Error in http_client.get: url=${url} attempt=${options.attempt} retry=${retry} options=${JSON.stringify(options)}`, result)
+        if (retry) {
+          return getWithRetry(url, u.merge(options, {attempt: (options.attempt + 1)}))
+        } else {
+          return Promise.reject(result)
+        }
+      } else {
+        return Promise.reject(result)
+      }
+    })
+}
+
 module.exports = {
-  get
+  get: getWithRetry
 }

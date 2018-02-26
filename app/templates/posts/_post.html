@@ -9,6 +9,7 @@
 </div>
 
 <% if (showCommentsForm) { %>
+<!--
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
@@ -22,10 +23,13 @@
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+-->
 <% } %>
 
 <% if (post.comments_count) { %>
+  <!--
 	<p>
-		<a href="/articles/one/{{post.id}}">{{post.comments_count}} comment(s)</a>
+		<a href="/articles/one/<%= post.id %>"><%= post.comments_count %> comment(s)</a>
 	</p>
+  -->
 <% } %>

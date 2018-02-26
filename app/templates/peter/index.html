@@ -14,8 +14,8 @@
 	<%=raw template('posts/_post', {post, showCommentsForm: false}) %>
 <% }) %>
 
-<% if (pagination.nextPage) { %>
+<% if (nextPage) { %>
 	<p>
-		&raquo; <a href="/peter?page={{pagination.next-page}}">Next page</a>
+		&raquo; <a href="/peter?page=<%= nextPage %>">Next page</a>
 	</p>
 <% } %>
