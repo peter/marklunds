@@ -1,7 +1,7 @@
-const {render} = require('app/template')
+const {render, render404} = require('app/template')
 const BlogPost = require('app/services/blog_post')
 
-PER_PAGE = 100
+const PER_PAGE = 100
 
 function list(req, res) {
   const testPost = {id: 1, created_at: new Date(), body: 'awesome post!', subject: 'awesome!', comments_count: 0}
@@ -15,7 +15,11 @@ function list(req, res) {
 
 function show(req, res) {
   BlogPost.get(req.params.id).then(post => {
-    render(res, 'posts/show', {post, comments: []})
+    if (post) {
+      render(res, 'posts/show', {post, comments: []})
+    } else {
+      render404(res)
+    }
   })
 }
 

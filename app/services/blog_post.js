@@ -7,12 +7,13 @@ function jsonResponse(response) {
 }
 
 function get(id) {
-  const url = config.API_BASE_URL + `/blog_posts/${id}`
-  return client.get(url).then(jsonResponse).then(body => u.getIn(body, 'data', 'attributes'))
+  const url = config.API_BASE_URL + `/blog_posts/${id}?published=1`
+  return client.get(url).then(jsonResponse)
+      .then(body => u.getIn(body, 'data', 'attributes'))
 }
 
 function list(query) {
-  const url = config.API_BASE_URL + '/blog_posts'
+  const url = config.API_BASE_URL + '/blog_posts?published=1'
   return client.get(url, {query}).then(jsonResponse).then(body => {
     return body.data.map(doc => doc.attributes)
   })

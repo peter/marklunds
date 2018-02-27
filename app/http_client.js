@@ -2,6 +2,7 @@ const https = require('https')
 const http = require('http')
 const querystring = require('querystring')
 const logger = require('app/logger')
+const u = require('app/util')
 
 function httpModule(url) {
   return url.startsWith('https') ? https : http
@@ -14,6 +15,14 @@ function urlWithQuery(url, query) {
   } else {
     return url
   }
+}
+
+function isSuccess(status) {
+  return status && Math.floor(status / 100) === 2
+}
+
+function isServerError(status) {
+  return status && Math.floor(status / 100) === 5
 }
 
 function get(url, options = {}) {
@@ -29,14 +38,7 @@ function get(url, options = {}) {
         const responseTime = Date.now() - beforeTime
         logger.debug(`http_client.get url=${url} status=${res.statusCode} response_time=${responseTime} body.length=${body.length}`)
         if (logger.shouldLog('verbose')) logger.verbose(`http_client.get body=${body}`)
-        if (res.statusCode === 200) {
-          resolve({headers: res.headers, body})
-        } else {
-          reject({
-            error_message: `Status code ${res.statusCode} for url ${url}`,
-            response: res
-          })
-        }
+        resolve({success: isSuccess(res.statusCode), status: res.statusCode, headers: res.headers, body})
       })
     }).on('error', function(error) {
       logger.debug(`http_client.get url=${url} error=${error.message}`)

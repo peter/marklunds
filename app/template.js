@@ -52,8 +52,14 @@ function render(res, id, data, options) {
   res.end(body)
 }
 
+function render404(res) {
+	res.writeHead(404, {'Content-Type': 'text/html'})
+  res.end('Not Found')
+}
+
 module.exports = {
 	template,
 	withLayout,
-	render
+	render,
+	render404
 }
