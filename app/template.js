@@ -1,12 +1,14 @@
+const u = require('app/util')
+
 // Code borrowed and slightly modified from:
 // https://github.com/cho45/micro-template.js/blob/master/lib/micro-template.js
 // Original implementation by John Resig:
 // https://johnresig.com/blog/javascript-micro-templating/
 function template (id, data) {
 	var me = arguments.callee;
-	data = Object.assign({}, data, {template}) // Allows nested templates (includes)
+	data = Object.assign({}, data, {u, template}) // Allow nested templates (includes)
 	if (!me.cache[id]) me.cache[id] = (function () {
-		var name = id, string = /^[\w_\/-]+$/.test(id) ? me.get(id): (name = 'template(string)', id); // no warnings
+		var name = id, string = /^[\w._\/-]+$/.test(id) ? me.get(id): (name = 'template(string)', id); // no warnings
 		var line = 1, body = (
 			"try { " +
 				(me.variable ?  "var " + me.variable + " = this.stash;" : "with (this.stash) { ") +
@@ -35,8 +37,12 @@ template.cache = {};
 
 TEMPLATE_DIR = 'app/templates'
 
+function filename(id) {
+	return id.includes('.') ? id : (id + '.html')
+}
+
 template.get = function (id) {
-  return require('fs').readFileSync(TEMPLATE_DIR + '/' + id + '.html', 'utf-8')
+  return require('fs').readFileSync(TEMPLATE_DIR + '/' + filename(id), 'utf-8')
 }
 
 function withLayout(id, data, layout) {
@@ -48,7 +54,7 @@ function render(res, id, data, options) {
 	data = data || {}
 	options = Object.assign({layout: 'layout'}, options)
 	const body = options.layout ? withLayout(id, data, options.layout) : template(id, data)
-	res.writeHead(200, {'Content-Type': 'text/html'})
+	res.writeHead(200, {'Content-Type': u.mimeType(filename(id))})
   res.end(body)
 }
 

@@ -1,3 +1,5 @@
+const extname = require('path').extname
+
 function zip(arrays) {
   return arrays[0].map(function(_, i) {
     return arrays.map(function(array) {
@@ -201,6 +203,43 @@ function secondsFromNow(seconds) {
   return secondsFrom(new Date(), seconds)
 }
 
+// Mon, 13 Jul 2015 08:00:48 +0000
+// pubDate
+function rssDate(date) {
+  if (typeof date === 'string') {
+    date = new Date(date)
+  }
+  var pieces     = date.toString().split(' '),
+      offsetTime = pieces[5].match(/[-+]\d{4}/),
+      offset     = (offsetTime) ? offsetTime : pieces[5],
+      parts      = [
+        pieces[0] + ',',
+        pieces[2],
+        pieces[1],
+        pieces[3],
+        pieces[4],
+        offset
+      ]
+  return parts.join(' ')
+}
+
+// NOTE: could use https://www.npmjs.com/package/mime
+const mimeTypes = {
+  '.html': 'text/html',
+  '.jpeg': 'image/jpeg',
+  '.jpg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.ico': 'image/x-icon',
+  '.xml': 'application/xml'
+}
+
+function mimeType(path) {
+  return mimeTypes[extname(path)]
+}
+
 module.exports = {
   zip,
   zipObj,
@@ -228,5 +267,7 @@ module.exports = {
   intersection,
   uniq,
   secondsFrom,
-  secondsFromNow
+  secondsFromNow,
+  rssDate,
+  mimeType
 }

@@ -24,7 +24,10 @@ function show(req, res) {
 }
 
 function feed(req, res) {
-  render(res, 'peter/feed', {posts: []})
+  const query = {'per-page': PER_PAGE}
+  BlogPost.list(query).then(posts => {
+    render(res, 'peter/feed.xml', {posts}, {layout: false})
+  })
 }
 
 function cv(req, res) {

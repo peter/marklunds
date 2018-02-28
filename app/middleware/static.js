@@ -1,28 +1,16 @@
 const parseUrl = require('url').parse
 const fs = require('fs')
-const extname = require('path').extname
+const u = require('app/util')
 
 const serveStatic = function(baseDir) {
   return function(req, res, next) {
     if (req.method === 'GET') {
       const path = parseUrl(req.url).path,
-            filePath = baseDir + path,
-            // NOTE: could use https://www.npmjs.com/package/mime
-            mimeTypes = {
-              '.html': 'text/html',
-              '.jpeg': 'image/jpeg',
-              '.jpg': 'image/jpeg',
-              '.png': 'image/png',
-              '.gif': 'image/gif',
-              '.js': 'text/javascript',
-              '.css': 'text/css',
-              '.ico': 'image/x-icon'
-            }
+            filePath = baseDir + path
       fs.stat(filePath, function(err, stat) {
         if (!err && stat.isFile()) {
           fs.readFile(filePath, function(_, data) {
-            const mimeType = mimeTypes[extname(path)]
-            res.writeHead(200, {'Content-Type': mimeType})
+            res.writeHead(200, {'Content-Type': u.mimeType(path)})
             res.end(data)
           })
         } else {

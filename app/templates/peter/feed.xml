@@ -8,15 +8,15 @@
     <ttl>40</ttl>
     <description>Lessons Learned in software and web development. By Peter Marklund.</description>
 
-    {% for post in posts %}
+    <% posts.forEach(post => { %>
       <item>
-        <title>{{post.subject}}</title>
-        <description>{{post.body}}</description>
-        <pubDate>{{post.created_at|rss-date}}</pubDate>
-        <guid>http://marklunds.com/articles/one/{{post.id}}</guid>
-        <link>http://marklunds.com/articles/one/{{post.id}}</link>
+        <title><%= post.subject %></title>
+        <description><%= post.body %></description>
+        <pubDate><%= u.rssDate(post.created_at) %></pubDate>
+        <guid>http://marklunds.com/articles/one/<%= post.id %></guid>
+        <link>http://marklunds.com/articles/one/<%= post.id %></link>
       </item>
-    {% endfor %}
+    <% }) %>
 
   </channel>
 </rss>
