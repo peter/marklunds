@@ -6,8 +6,9 @@ function jsonResponse(response) {
   return JSON.parse(response.body)
 }
 
-function get(id) {
-  const url = config.API_BASE_URL + `/blog_posts/${id}?published=1`
+function get(id, options = {}) {
+  const query = options.version_token ? `version_token=${options.version_token}` : 'published=1'
+  const url = config.API_BASE_URL + `/blog_posts/${id}?${query}`
   return client.get(url).then(jsonResponse)
       .then(body => u.getIn(body, 'data', 'attributes'))
 }

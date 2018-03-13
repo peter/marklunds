@@ -14,7 +14,8 @@ function list(req, res) {
 }
 
 function show(req, res) {
-  BlogPost.get(req.params.id).then(post => {
+  const version_token = req.params.version_token
+  BlogPost.get(req.params.id, {version_token}).then(post => {
     if (post) {
       render(res, 'posts/show', {post, comments: []})
     } else {

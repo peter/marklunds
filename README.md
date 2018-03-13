@@ -2,6 +2,12 @@
 
 Node.js web app for www.marklunds.com
 
+## Start Server in Development
+
 ```
-NODE_PATH=.
+npm start
+```
+
+```
+open http://localhost:3000
 ```
