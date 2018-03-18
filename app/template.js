@@ -50,16 +50,20 @@ function withLayout(id, data, layout) {
 	return template(layout, {content})
 }
 
+function withCharset(mimeType) {
+	return mimeType + '; charset=utf-8'
+}
+
 function render(res, id, data, options) {
 	data = data || {}
 	options = Object.assign({layout: 'layout'}, options)
 	const body = options.layout ? withLayout(id, data, options.layout) : template(id, data)
-	res.writeHead(200, {'Content-Type': u.mimeType(filename(id))})
+	res.writeHead(200, {'Content-Type': withCharset(u.mimeType(filename(id)))})
   res.end(body)
 }
 
 function render404(res) {
-	res.writeHead(404, {'Content-Type': 'text/html'})
+	res.writeHead(404, {'Content-Type': withCharset('text/html')})
   res.end('Not Found')
 }
 
