@@ -7,16 +7,18 @@ function jsonResponse(response) {
 }
 
 function get(id, options = {}) {
-  const query = options.version_token ? `version_token=${options.version_token}` : 'published=1'
-  const url = config.API_BASE_URL + `/blog_posts/${id}?${query}`
-  return client.get(url).then(jsonResponse)
-      .then(body => u.getIn(body, 'data', 'attributes'))
+  const query = options.versionToken ? {versionToken: options.versionToken} : {published: '1'}
+  query.apiKey = config.API_KEY
+  const url = config.API_BASE_URL + `/blog_posts/${id}`
+  return client.get(url, {query}).then(jsonResponse)
+      .then(body => u.getIn(body, 'data'))
 }
 
 function list(query) {
   const url = config.API_BASE_URL + '/blog_posts?published=1'
-  return client.get(url, {query}).then(jsonResponse).then(body => {
-    return body.data.map(doc => doc.attributes)
+  const apiQuery = u.merge(query, {apiKey: config.API_KEY})
+  return client.get(url, {query: apiQuery}).then(jsonResponse).then(body => {
+    return u.getIn(body, 'data')
   })
 }
 

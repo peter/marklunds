@@ -10,9 +10,9 @@
 
     <% posts.forEach(post => { %>
       <item>
-        <title><%= post.subject %></title>
+        <title><%= post.title %></title>
         <description><%= post.body %></description>
-        <pubDate><%= u.rssDate(post.created_at) %></pubDate>
+        <pubDate><%= u.rssDate(post.createdAt) %></pubDate>
         <guid>http://marklunds.com/articles/one/<%= post.id %></guid>
         <link>http://marklunds.com/articles/one/<%= post.id %></link>
       </item>

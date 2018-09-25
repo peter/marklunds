@@ -1,21 +1,22 @@
 const {render, render404} = require('app/template')
 const BlogPost = require('app/services/blog_post')
 
-const PER_PAGE = 100
+const LIMIT = 100
 
 function list(req, res) {
   const testPost = {id: 1, created_at: new Date(), body: 'awesome post!', subject: 'awesome!', comments_count: 0}
   const page = parseInt(req.params.page || 1)
-  const query = {page, 'per-page': PER_PAGE}
+  const skip = (page - 1) * LIMIT
+  const query = {skip, limit: LIMIT}
   BlogPost.list(query).then(posts => {
-    const nextPage = (posts.length === PER_PAGE ? (page + 1) : null)
+    const nextPage = (posts.length === LIMIT ? (page + 1) : null)
     render(res, 'peter/index', {posts, nextPage})
   })
 }
 
 function show(req, res) {
-  const version_token = req.params.version_token
-  BlogPost.get(req.params.id, {version_token}).then(post => {
+  const versionToken = req.params.versionToken
+  BlogPost.get(req.params.id, {versionToken}).then(post => {
     if (post) {
       render(res, 'posts/show', {post, comments: []})
     } else {
