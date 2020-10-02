@@ -4,7 +4,8 @@
   "description": "Node.js web app for www.marklunds.com",
   "main": "app/index.js",
   "scripts": {
-    "start": "NODE_PATH=. node app/index.js"
+    "start": "NODE_PATH=. node app/index.js",
+    "diary-backup": "NODE_PATH=. bin/diary-backup"
   },
   "author": "Peter Marklund",
   "license": "ISC",
