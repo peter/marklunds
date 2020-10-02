@@ -28,7 +28,7 @@ async function s3Upload(data) {
 
 async function fetchDiary(query = {}) {    
     query = Object.assign({
-        apiKey: env('VERSIONED_API_KEY'),
+        apiKey: env('API_KEY'),
         relationshipLevels: 1,
         limit: 300,
         skip: 0,

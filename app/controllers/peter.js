@@ -26,7 +26,7 @@ function show(req, res) {
 }
 
 function feed(req, res) {
-  const query = {'per-page': PER_PAGE}
+  const query = {limit: LIMIT}
   BlogPost.list(query).then(posts => {
     render(res, 'peter/feed.xml', {posts}, {layout: false})
   })
