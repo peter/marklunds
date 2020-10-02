@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+
+const AWS = require('aws-sdk')
+const client = require('app/http_client')
+
+function env(key) {
+    if (!process.env[key]) throw new Error(`Missing env variable ${key}`)
+    return process.env[key]
+}
+
+function log(message) {
+    console.log(`diary-backup: ${message}`)
+}
+
+async function s3Upload(data) {
+    const s3 = new AWS.S3({
+        accessKeyId: env('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: env('AWS_SECRET_ACCESS_KEY')
+    })
+    const month = new Date().toISOString().substring(0, 7)
+    const params = {
+        Bucket: 'versioned-diary-backup',
+        Key: `${month}.json`,
+        Body: JSON.stringify(data, null, 4)
+    }
+    await s3.upload(params).promise()
+}
+
+async function fetchDiary(query = {}) {    
+    query = Object.assign({
+        apiKey: env('VERSIONED_API_KEY'),
+        relationshipLevels: 1,
+        limit: 300,
+        skip: 0,
+    }, query)
+
+    const url = 'https://api.versioned.io/v1/data/5ba205c2aefdde0013596636/diary'
+    const response = await client.get(url, { query })
+    return JSON.parse(response.body)
+}
+
+async function fetchFullDiary() {
+    let result = []
+    let limit = 300
+    let skip = 0
+    while (true) {
+        const body = await fetchDiary({limit, skip})
+        result = result.concat(body.data)        
+        skip = skip + limit
+        if (skip > body.count) return result
+    }
+}
+
+async function main() {
+    log('starting')
+    log('fetchFullDiary...')
+    const data = await fetchFullDiary()
+    log('s3Upload...')
+    await s3Upload(data)
+    log('success!')
+}
+
+main()
