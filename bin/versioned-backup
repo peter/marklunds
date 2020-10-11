@@ -3,6 +3,8 @@
 const AWS = require('aws-sdk')
 const client = require('app/http_client')
 
+const MODELS = [{model: 'diary', query: {}}, {model: 'blog_posts', query: {published: true}}]
+
 function env(key) {
     if (!process.env[key]) throw new Error(`Missing env variable ${key}`)
     return process.env[key]
@@ -12,21 +14,23 @@ function log(message) {
     console.log(`diary-backup: ${message}`)
 }
 
-async function s3Upload(data) {
+async function s3Upload(model, data) {
     const s3 = new AWS.S3({
         accessKeyId: env('AWS_ACCESS_KEY_ID'),
         secretAccessKey: env('AWS_SECRET_ACCESS_KEY')
     })
     const month = new Date().toISOString().substring(0, 7)
+    const key = `${model}-${month}.json`
     const params = {
         Bucket: 'versioned-diary-backup',
-        Key: `${month}.json`,
+        Key: key,
         Body: JSON.stringify(data, null, 4)
     }
+    log(`uploading s3 file ${key}...`)
     await s3.upload(params).promise()
 }
 
-async function fetchDiary(query = {}) {    
+async function fetchModel(model, query = {}) {    
     query = Object.assign({
         apiKey: env('API_KEY'),
         relationshipLevels: 1,
@@ -34,17 +38,18 @@ async function fetchDiary(query = {}) {
         skip: 0,
     }, query)
 
-    const url = 'https://api.versioned.io/v1/data/5ba205c2aefdde0013596636/diary'
+    const url = `https://api.versioned.io/v1/data/5ba205c2aefdde0013596636/${model}`
     const response = await client.get(url, { query })
+    if (!response.success) throw new Error(`Failed to fetch url=${url} with status ${response.status}`)
     return JSON.parse(response.body)
 }
 
-async function fetchFullDiary() {
+async function fetchFullModel(model, query) {
     let result = []
     let limit = 300
     let skip = 0
     while (true) {
-        const body = await fetchDiary({limit, skip})
+        const body = await fetchModel(model, Object.assign({limit, skip}, query))
         result = result.concat(body.data)        
         skip = skip + limit
         if (skip > body.count) return result
@@ -53,10 +58,12 @@ async function fetchFullDiary() {
 
 async function main() {
     log('starting')
-    log('fetchFullDiary...')
-    const data = await fetchFullDiary()
-    log('s3Upload...')
-    await s3Upload(data)
+    for (const {model, query} of MODELS) {
+        log(`fetchFullModel ${model}...`)
+        const data = await fetchFullModel(model, query)
+        log(`s3Upload ${model}...`)
+        await s3Upload(model, data)
+    }
     log('success!')
 }
 

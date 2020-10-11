@@ -5,7 +5,7 @@
   "main": "app/index.js",
   "scripts": {
     "start": "NODE_PATH=. node app/index.js",
-    "diary-backup": "NODE_PATH=. bin/diary-backup"
+    "versioned-backup": "NODE_PATH=. bin/versioned-backup"
   },
   "author": "Peter Marklund",
   "license": "ISC",
